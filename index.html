@@ -1,36 +1,599 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>This is my document</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Melbourne's Public Transport Network</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/vega@5.28.0" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.19.0" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.25.0" defer></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --navy:   #0a1628;
+      --blue:   #0057a0;
+      --yellow: #ffd000;
+      --green:  #00843d;
+      --red:    #c8102e;
+      --white:  #ffffff;
+      --off:    #f5f6f8;
+      --muted:  #5a6a7a;
+      --border: #dde2e8;
+      --ink:    #1a2332;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Lora', Georgia, serif; color: var(--ink); background: var(--white); -webkit-font-smoothing: antialiased; }
+    a { color: var(--blue); }
+    a:hover { text-decoration: underline; }
+
+    h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; line-height: 1.1; letter-spacing: -0.01em; }
+    h1 { font-size: clamp(2.8rem, 6vw, 5.5rem); }
+    h2 { font-size: clamp(2rem,  4vw, 3.2rem); }
+    h3 { font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; }
+    p  { font-size: 1.05rem; line-height: 1.8; color: var(--muted); }
+
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+    .section { padding: 80px 0; }
+    .section--dark { background: var(--navy); }
+    .section--off  { background: var(--off); }
+
+    .hero { background: var(--navy); padding: 70px 0 0; overflow: hidden; position: relative; }
+    .hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(90deg, transparent 0px, transparent 60px, rgba(255,255,255,.02) 60px, rgba(255,255,255,.02) 61px);
+      pointer-events: none;
+    }
+    .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: end; }
+    .hero-copy { padding-bottom: 60px; }
+    .hero-eyebrow { font-family: 'Barlow', sans-serif; font-size: .8rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: var(--yellow); margin-bottom: 20px; display: block; }
+    .hero h1 { color: var(--white); margin-bottom: 20px; }
+    .hero-lead { font-family: 'Barlow', sans-serif; font-size: 1.1rem; color: rgba(255,255,255,.65); line-height: 1.7; max-width: 480px; margin-bottom: 40px; }
+
+    .hero-stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; overflow: hidden; }
+    .hero-stat { padding: 22px 20px; background: rgba(255,255,255,.04); }
+    .hero-stat__num { font-family: 'Barlow Condensed', sans-serif; font-size: 2.6rem; font-weight: 900; color: var(--yellow); line-height: 1; display: block; margin-bottom: 4px; }
+    .hero-stat__lbl { font-family: 'Barlow', sans-serif; font-size: .82rem; color: rgba(255,255,255,.5); }
+
+    .hero-panel { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-bottom: none; border-radius: 12px 12px 0 0; min-height: 360px; display: flex; align-items: center; padding: 20px; }
+    .line-strip { display: flex; height: 6px; border-radius: 0 0 4px 4px; overflow: hidden; }
+    .line-strip span { flex: 1; }
+
+    .sec-label { font-family: 'Barlow', sans-serif; font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; display: block; }
+    .sec-label--light { color: var(--yellow); }
+
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 28px 28px 20px; }
+    .card--dark { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.08); }
+    .card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.35rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .card-title--light { color: var(--white); }
+    .card-desc { font-family: 'Barlow', sans-serif; font-size: .9rem; color: var(--muted); line-height: 1.55; margin-bottom: 18px; }
+    .card-desc--light { color: rgba(255,255,255,.5); }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+    .stat-banner { background: var(--blue); color: var(--white); text-align: center; padding: 52px 24px; }
+    .stat-banner h2 { color: var(--white); font-size: clamp(2rem,4vw,3.6rem); }
+    .stat-banner p  { color: rgba(255,255,255,.75); font-family: 'Barlow', sans-serif; margin-top: 10px; font-size: 1.05rem; }
+
+    footer { background: #060d1a; padding: 40px 0; text-align: center; }
+    footer p { font-family: 'Barlow', sans-serif; font-size: .82rem; color: rgba(255,255,255,.35); line-height: 1.8; }
+    footer a { color: rgba(255,255,255,.5); }
+
+    .vega-embed summary { display: none !important; }
+    .vega-embed { width: 100%; }
+
+    @media (max-width: 860px) {
+      .hero-inner { grid-template-columns: 1fr; }
+      .hero-panel { display: none; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .wrap { padding: 0 16px; }
+    }
+  </style>
 </head>
 <body>
-    <h1>This is a heading</h1>
-    <p>This is a paragraph</p>
-    <table border="1" cellpadding="10%">
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Grade</th>
-        </tr>
-        <tr>
-            <th>John</th>
-            <th>Jill</th>
-            <th>Jane</th>
-        </tr>
-        <tr>
-            <th>Doe</th>
-            <th>Jackson</th>
-            <th>Smith</th>
-        </tr>
-        <tr>
-            <th>HD</th>
-            <th>D</th>
-            <th>C</th>
-        </tr>
-    </table>
-    <h2>Embedding Images in HTML</h2>
-    <a href="youtube.com">MyLink</a>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-inner">
+      <div class="hero-copy">
+        <span class="hero-eyebrow">Melbourne · A City in Motion</span>
+        <h1>The Network<br>That Moves<br>5 Million People</h1>
+        <p class="hero-lead">
+          Every weekday, nearly 800,000 Melburnians board a train, tram, or bus.
+          This is the story of the infrastructure behind those journeys.
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat"><span class="hero-stat__num">245</span><span class="hero-stat__lbl">Train stations</span></div>
+          <div class="hero-stat"><span class="hero-stat__num">16</span><span class="hero-stat__lbl">Metro lines</span></div>
+          <div class="hero-stat"><span class="hero-stat__num">250 km</span><span class="hero-stat__lbl">Tram routes</span></div>
+          <div class="hero-stat"><span class="hero-stat__num">$150B</span><span class="hero-stat__lbl">Planned investment</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="hero-panel"><div id="hero-viz" style="width:100%"></div></div>
+        <div class="line-strip">
+          <span style="background:#152C6B"></span>
+          <span style="background:#FFC72C"></span>
+          <span style="background:#00843D"></span>
+          <span style="background:#0057A0"></span>
+          <span style="background:#C8102E"></span>
+          <span style="background:#E8556F"></span>
+          <span style="background:#6F5091"></span>
+          <span style="background:#FF6B35"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="section">
+    <div class="wrap">
+      <span class="sec-label">Section 01 — Infrastructure</span>
+      <h2 style="margin-bottom:10px">The Network at a Glance</h2>
+      <p style="max-width:640px; margin-bottom:48px">Melbourne's metropolitan rail network connects outer suburbs to the CBD through 16 lines and 245 stations.</p>
+
+      <div class="card" style="margin-bottom:24px">
+        <p class="card-title">Station Patronage Map — FY 2024–25</p>
+        <p class="card-desc">Every dot is a real Melbourne train station, sized by annual entries. Hover for details.</p>
+        <div id="vis-map"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <p class="card-title">Top 15 Busiest Stations</p>
+          <p class="card-desc">Average weekday entries, FY 2024–25.</p>
+          <div id="vis-top-stations"></div>
+        </div>
+        <div class="card">
+          <p class="card-title">Network-Wide Patronage by Time Band</p>
+          <p class="card-desc">Total entries across all stations.</p>
+          <div id="vis-timeband"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stat-banner">
+    <h2>In Toorak, 95% of residents live within 400 m of a station.</h2>
+    <p>In Melton? Just 12%. Distance from the CBD determines access.</p>
+  </div>
+
+  <section class="section section--off">
+    <div class="wrap">
+      <span class="sec-label">Section 02 — Usage Patterns</span>
+      <h2 style="margin-bottom:10px">How Melburnians Actually Travel</h2>
+
+      <div class="grid-2" style="margin-bottom:24px">
+        <div class="card">
+          <p class="card-title">Weekday vs Weekend — Top 12 Stations</p>
+          <p class="card-desc">Real FY 2024–25 data.</p>
+          <div id="vis-quick-summary"></div>
+        </div>
+        <div class="card">
+          <p class="card-title">Peak Hour Share by Station</p>
+          <p class="card-desc">Proportion of daily entries in AM/PM peak (top 10).</p>
+          <div id="vis-timeband2"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <p class="card-title">Stacked Patronage — Weekday / Saturday / Sunday (Top 15)</p>
+        <p class="card-desc">Absolute volume split by day type.</p>
+        <div id="vis-stacked"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <span class="sec-label">Section 03 — Network Character</span>
+      <h2 style="margin-bottom:10px">Rush Hour Rhythms</h2>
+
+      <div class="card" style="margin-bottom:24px">
+        <p class="card-title">Patronage Distribution Across All Stations</p>
+        <p class="card-desc">Most stations are small. A few CBD stations dominate.</p>
+        <div id="vis-histogram"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <p class="card-title">Saturday vs Sunday Demand</p>
+          <p class="card-desc">Weekend patterns differ by corridor.</p>
+          <div id="vis-sat-sun"></div>
+        </div>
+        <div class="card">
+          <p class="card-title">School Holiday vs Normal Weekday</p>
+          <p class="card-desc">Impact of school terms on demand.</p>
+          <div id="vis-school-hol"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--dark">
+    <div class="wrap">
+      <span class="sec-label sec-label--light">Section 04 — Reliability</span>
+      <h2 style="color:var(--white); margin-bottom:10px">The Reliability Report Card</h2>
+
+      <div class="grid-2" style="margin-bottom:24px">
+        <div class="card card--dark">
+          <p class="card-title card-title--light">On-Time Performance by Line</p>
+          <p class="card-desc card-desc--light">% services within 5 min of schedule. Dashed line = 92% target.</p>
+          <div id="vis-performance"></div>
+        </div>
+        <div class="card card--dark">
+          <p class="card-title card-title--light">Patronage vs On-Time Performance</p>
+          <p class="card-desc card-desc--light">Busier lines vs reliability.</p>
+          <div id="vis-scatter"></div>
+        </div>
+      </div>
+
+      <div class="card card--dark">
+        <p class="card-title card-title--light">Metro Train On-Time Running — 2019 to 2025</p>
+        <div id="vis-trend"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <span class="sec-label">Section 05 — Future Planning</span>
+      <h2 style="margin-bottom:10px">Building Tomorrow's Network</h2>
+
+      <div class="card" style="margin-bottom:24px">
+        <p class="card-title">Major Projects — Timeline & Relative Budget</p>
+        <div id="vis-timeline"></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <p class="card-title">Budget Allocation by Project Type</p>
+          <div id="vis-budget"></div>
+        </div>
+        <div class="card">
+          <p class="card-title">Projected Patronage Growth to 2050</p>
+          <div id="vis-growth"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>
+      © 2026 Senuka · Melbourne Public Transport Dashboard<br>
+      Built with <a href="https://vega.github.io/vega-lite/" target="_blank">Vega-Lite</a> • 
+      Data from Transport Victoria Open Data (CC BY 4.0)<br>
+      <a href="sketch.pdf" target="_blank">Original sketch (PDF)</a> • 
+      <a href="https://github.com/yourusername/melbourne-transport-viz" target="_blank">GitHub repository</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+// Wrapping your script inside this event ensures that deferred external packages are loaded first
+window.addEventListener('DOMContentLoaded', () => {
+  const DATA = "data/station_entries.csv";
+  const PERF_DATA = "data/line_performance.csv";
+  const TREND_DATA = "data/punctuality_trend.csv";
+  const PROJECTS_DATA = "data/major_projects.json";
+  const GROWTH_DATA = "data/patronage_growth.csv";
+
+  const CFG = {
+    font: "Barlow, sans-serif",
+    view: { stroke: null },
+    axis: { labelFont:"Barlow,sans-serif", titleFont:"Barlow,sans-serif", gridColor:"#e8eaed", domainColor:"#ccc", tickColor:"#ccc" },
+    legend: { labelFont:"Barlow,sans-serif", titleFont:"Barlow,sans-serif" },
+    title: { font:"Barlow Condensed,sans-serif", fontWeight:700 }
+  };
+
+  const OPT = { actions: false, renderer: "svg" };
+  
+  const PROJECT_SCALE = {
+    domain: ["Suburban Rail Loop", "Level Crossings", "Metro Tunnel", "Other"],
+    range: ["#0057a0", "#00843d", "#ffd000", "#5a6a7a"]
+  };
+
+  // Hero Viz
+  vegaEmbed("#hero-viz", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:300,
+    data:{ url: DATA },
+    transform:[{ filter:"datum.Pax_annual > 500000" }, { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_annual",order:"descending"}] }, { filter:"datum.rank <= 10" }],
+    mark:{ type:"circle", opacity:0.85 },
+    encoding:{
+      x:{ field:"Pax_weekday", type:"quantitative", axis:{ title:"Avg Weekday Entries", format:"," }},
+      y:{ field:"Pax_Saturday", type:"quantitative", axis:{ title:"Avg Saturday Entries", format:"," }},
+      size:{ field:"Pax_annual", type:"quantitative", scale:{range:[200,3000]}, legend:null },
+      color:{ value:"#ffd000" },
+      tooltip:[{field:"Stop_name", title:"Station"},{field:"Pax_annual", title:"Annual Entries", format:","},{field:"Pax_weekday", title:"Weekday Avg", format:","},{field:"Pax_Saturday", title:"Sat Avg", format:","}]
+    },
+    config:{ ...CFG, background:"transparent" }
+  }, OPT).catch(console.error);
+
+  // Map
+  vegaEmbed("#vis-map", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:520,
+    data:{ url: DATA },
+    mark:{ type:"circle", opacity:0.75, stroke:"#0057a0", strokeWidth:0.5 },
+    encoding:{
+      longitude:{ field:"Stop_long", type:"quantitative" },
+      latitude:{ field:"Stop_lat", type:"quantitative" },
+      size:{ field:"Pax_annual", type:"quantitative", scale:{ type:"sqrt", range:[15,2200] }, legend:{ title:"Annual Entries", format:".2s", orient:"bottom-right" }},
+      color:{ field:"Pax_annual", type:"quantitative", scale:{ scheme:"blues", domain:[0,25000000] }, legend:null },
+      tooltip:[{field:"Stop_name", title:"Station"},{field:"Pax_annual", title:"Annual Entries", format:","}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+
+  // Top 15 Stations
+  vegaEmbed("#vis-top-stations", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:400,
+    data:{ url: DATA },
+    transform:[{ window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] }, { filter:"datum.rank <= 15" }],
+    mark:{ type:"bar", cornerRadiusEnd:3 },
+    encoding:{
+      y:{ field:"Stop_name", type:"nominal", sort:"-x", axis:{ title:null }},
+      x:{ field:"Pax_weekday", type:"quantitative", axis:{ title:"Avg Weekday Entries", format:"," }},
+      color:{ field:"Pax_weekday", type:"quantitative", scale:{ scheme:"blues" }, legend:null },
+      tooltip:[{field:"Stop_name", title:"Station"}, {field:"Pax_weekday", title:"Weekday Entries", format:","}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+
+  // Time Band
+  vegaEmbed("#vis-timeband", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:360,
+    data:{ url: DATA },
+    transform:[
+      { fold:["Pax_pre_AM_peak","Pax_AM_peak","Pax_interpeak","Pax_PM_peak","Pax_PM_late"], as:["band","entries"] },
+      { aggregate:[{op:"sum",field:"entries",as:"total"}], groupby:["band"] },
+      { calculate:"({'Pax_pre_AM_peak':'Pre-AM Peak','Pax_AM_peak':'AM Peak','Pax_interpeak':'Interpeak','Pax_PM_peak':'PM Peak','Pax_PM_late':'Evening'})[datum.band]", as:"label" }
+    ],
+    mark:{ type:"bar", cornerRadiusEnd:3 },
+    encoding:{
+      x:{ field:"label", type:"ordinal", sort:["Pre-AM Peak","AM Peak","Interpeak","PM Peak","Evening"], axis:{ title:"Time Band", labelAngle:0 } },
+      y:{ field:"total", type:"quantitative", axis:{ title:"Total Network Entries", format:".2s" }},
+      color:{ value:"#0057a0" },
+      tooltip:[{field:"label", title:"Time Horizon"}, {field:"total", title:"Combined Boardings", format:","}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+
+  // Weekday vs Weekend
+  vegaEmbed("#vis-quick-summary", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:400,
+    data:{ url: DATA },
+    transform:[
+      { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
+      { filter:"datum.rank <= 12" },
+      { fold:["Pax_weekday","Pax_Saturday","Pax_Sunday"], as:["dtype","val"] },
+      { calculate:"({'Pax_weekday':'Weekday','Pax_Saturday':'Saturday','Pax_Sunday':'Sunday'})[datum.dtype]", as:"Day" }
+    ],
+    mark:"bar",
+    encoding:{
+      y:{ field:"Stop_name", type:"nominal", sort:"-x", axis:{ title:null } },
+      x:{ field:"val", type:"quantitative", axis:{ title:"Average Shared Ridership", format:"," } },
+      color:{ field:"Day", type:"nominal", scale:{ range:["#0057a0","#00843d","#ffd000"] }, legend:{ title:"Travel Interval" }},
+      xOffset:{ field:"Day" },
+      tooltip:[{field:"Stop_name", title:"Station"}, {field:"Day"}, {field:"val", title:"Average Entries", format:","}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+
+  // Peak Hour Share
+  vegaEmbed("#vis-timeband2", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:400,
+    data:{ url: DATA },
+    transform:[
+      { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
+      { filter:"datum.rank <= 10" },
+      { fold:["Pax_pre_AM_peak","Pax_AM_peak","Pax_interpeak","Pax_PM_peak","Pax_PM_late"], as:["band","val"] },
+      { calculate:"({'Pax_pre_AM_peak':'Pre-AM','Pax_AM_peak':'AM Peak','Pax_interpeak':'Interpeak','Pax_PM_peak':'PM Peak','Pax_PM_late':'Evening'})[datum.band]", as:"Band" }
+    ],
+    mark:"bar",
+    encoding:{
+      x:{ field:"Stop_name", type:"nominal", sort:{ field:"Pax_weekday", order:"descending" }, axis:{ labelAngle:-35, title:null }},
+      y:{ field:"val", type:"quantitative", stack:"normalize", axis:{ format:"%", title:"Proportional Band Allocation" }},
+      color:{ field:"Band", type:"nominal", legend:{ orient:"top", columns:5 }},
+      tooltip:[{field:"Stop_name", title:"Station"}, {field:"Band"}, {field:"val", title:"Entries", format:","}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+
+  // Stacked
+  vegaEmbed("#vis-stacked", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:320,
+    data:{ url: DATA },
+    transform:[
+      { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
+      { filter:"datum.rank <= 15" },
+      { fold:["Pax_norm_weekday","Pax_Saturday","Pax_Sunday"], as:["dtype","val"] },
+      { calculate:"({'Pax_norm_weekday':'Weekday','Pax_Saturday':'Saturday','Pax_Sunday':'Sunday'})[datum.dtype]", as:"DayType" }
+    ],
+    mark:"bar",
+    encoding:{
+      x:{ field:"Stop_name", type:"nominal", sort:{ field:"Pax_weekday", order:"descending" }, axis:{ labelAngle:-40, title:null }},
+      y:{ field:"val", type:"quantitative", axis:{ title:"Accumulated Weekly Traffic Volumes", format:".2s" }},
+      color:{ field:"DayType", type:"nominal", scale:{ range:["#0057a0","#00843d","#ffd000"] }, legend:{ title:"Day Profile" }},
+      tooltip:[{field:"Stop_name", title:"Station"}, {field:"DayType", title:"Profile"}, {field:"val", title:"Entries", format:","}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+
+  // Histogram
+  vegaEmbed("#vis-histogram", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:300,
+    data:{ url: DATA },
+    mark:{ type:"bar", color:"#0057a0" },
+    encoding:{
+      x:{ field:"Pax_annual", type:"quantitative", bin:{ maxbins:30 }, axis:{ title:"Annual Boarding Volume Tranches", format:".2s" }},
+      y:{ aggregate:"count", type:"quantitative", axis:{ title:"Count of Stations in Bin" } },
+      tooltip:[{aggregate:"count", title:"Station Frequency"}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+
+  // Sat vs Sun
+  vegaEmbed("#vis-sat-sun", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:340,
+    data:{ url: DATA },
+    mark:{ type:"point", filled:true, opacity:0.7, size:100 },
+    encoding:{
+      x:{ field:"Pax_Saturday", type:"quantitative", axis:{ title:"Average Saturday Ridership", format:"," } },
+      y:{ field:"Pax_Sunday", type:"quantitative", axis:{ title:"Average Sunday Ridership", format:"," } },
+      color:{ field:"Pax_annual", type:"quantitative", scale:{ scheme:"blues" }, legend:{ title:"Total Scale Base", format:".2s" }},
+      tooltip:[{field:"Stop_name", title:"Station"}, {field:"Pax_Saturday", title:"Sat Avg", format:","}, {field:"Pax_Sunday", title:"Sun Avg", format:","}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+
+  // School Holiday
+  vegaEmbed("#vis-school-hol", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:340,
+    data:{ url: DATA },
+    transform:[
+      { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
+      { filter:"datum.rank <= 20" },
+      { calculate:"(datum.Pax_sch_hol_weekday - datum.Pax_norm_weekday) / datum.Pax_norm_weekday * 100", as:"pct" }
+    ],
+    mark:{ type:"bar" },
+    encoding:{
+      y:{ field:"Stop_name", type:"nominal", sort:{ field:"pct", order:"ascending" }, axis:{ title:null }},
+      x:{ field:"pct", type:"quantitative", axis:{ title:"Ridership Variance during Holidays (%)", format:".1f" }},
+      color:{ condition:{ test:"datum.pct < 0", value:"#c8102e" }, value:"#00843d" },
+      tooltip:[{field:"Stop_name", title:"Station"}, {field:"pct", title:"Variance Drop-off", format:".2f"}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+
+  // Performance
+  vegaEmbed("#vis-performance", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:340,
+    layer:[{
+      data:{ url: PERF_DATA },
+      mark:{ type:"bar", cornerRadiusEnd:3 },
+      encoding:{
+        y:{ field:"line", type:"nominal", sort:"-x", axis:{ title:null, labelColor:"#fff" } },
+        x:{ field:"otp", type:"quantitative", scale:{ domain:[85,100] }, axis:{ title:"On-Time Punctuality Index (%)", labelColor:"#fff", titleColor:"#fff" }},
+        color:{ field:"otp", type:"quantitative", scale:{ domain:[87,92,97], range:["#c8102e","#ffd000","#00843d"] }, legend:null },
+        tooltip:[{field:"line", title:"Network Corridor Line"}, {field:"otp", title:"On-Time Index (%)", format:".1f"}]
+      }
+    },{
+      data:{ values:[{x:92}] },
+      mark:{ type:"rule", strokeDash:[4,3], color:"#ffd000", size:1.5 },
+      encoding:{ x:{ field:"x", type:"quantitative" }}
+    }],
+    config:{ ...CFG, background:"transparent" }
+  }, OPT).catch(console.error);
+
+  // Scatter
+  vegaEmbed("#vis-scatter", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:340,
+    layer:[{
+      data:{ url: PERF_DATA },
+      mark:{ type:"point", filled:true, size:150 },
+      encoding:{
+        x:{ field:"pat", type:"quantitative", axis:{ title:"Annual Line Ridership Weight (Millions)", labelColor:"#fff", titleColor:"#fff" } },
+        y:{ field:"otp", type:"quantitative", scale:{ domain:[85,100] }, axis:{ title:"On-Time Target Alignment (%)", labelColor:"#fff", titleColor:"#fff" }},
+        color:{ field:"otp", type:"quantitative", scale:{ domain:[87,92,97], range:["#c8102e","#ffd000","#00843d"] }, legend:null },
+        tooltip:[{field:"line", title:"Line Hub"}, {field:"pat", title:"Ridership (M)"}, {field:"otp", title:"Punctuality Score", format:".1f"}]
+      }
+    },{
+      data:{ url: PERF_DATA },
+      mark:{ type:"text", dy:-12, fontSize:11, color:"#fff", fontWeight:500 },
+      encoding:{ x:{ field:"pat", type:"quantitative" }, y:{ field:"otp", type:"quantitative" }, text:{ field:"line", type:"nominal" }}
+    }],
+    config:{ ...CFG, background:"transparent" }
+  }, OPT).catch(console.error);
+
+  // Trend Area Horizon
+  vegaEmbed("#vis-trend", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:280,
+    data:{ url: TREND_DATA },
+    layer:[{
+      mark:{ type:"area", line:{ color:"#ffd000", size:2 }, color:"rgba(255, 208, 0, 0.15)"},
+      encoding:{
+        x:{ field:"year", type:"ordinal", axis:{ title:"Reporting Year", labelAngle:0, labelColor:"#fff", titleColor:"#fff" } },
+        y:{ field:"otp", type:"quantitative", scale:{ domain:[88,100] }, axis:{ title:"Network Punctuality Average (%)", labelColor:"#fff", titleColor:"#fff" }},
+        tooltip:[{field:"year", title:"Fiscal Window Year"}, {field:"otp", title:"Punctuality System Score", format:".1f"}]
+      }
+    },{
+      data:{ values:[{y:92}] },
+      mark:{ type:"rule", strokeDash:[4,3], color:"rgba(255,200,0,.5)" },
+      encoding:{ y:{ field:"y", type:"quantitative" }}
+    }],
+    config:{ ...CFG, background:"transparent" }
+  }, OPT).catch(console.error);
+
+  // Timeline Gantt Project View
+  vegaEmbed("#vis-timeline", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:300,
+    data:{ url: PROJECTS_DATA },
+    mark:{ type:"bar", cornerRadius:4 },
+    encoding:{
+      y:{ field:"project", type:"nominal", axis:{ title:null }},
+      x:{ field:"start", type:"quantitative", axis: { format: "d", title: "Project Delivery Implementation Window (Calendar Year Baseline)" } },
+      x2:{ field:"end" },
+      color:{ field:"type", type:"nominal", scale: PROJECT_SCALE, legend:null },
+      size:{ value: 20 },
+      tooltip:[{field:"project", title:"Strategic Project"}, {field:"start", title:"Commenced"}, {field:"end", title:"Target Opening"}, {field:"budget", title:"Approved Budget ($B)", format:".1f"}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+
+  // Budget Donut Ring Allocation
+  vegaEmbed("#vis-budget", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:340,
+    data:{ url: PROJECTS_DATA },
+    mark:{ type:"arc", innerRadius:80, stroke:"#fff", strokeWidth:1 },
+    encoding:{
+      theta:{ field:"budget", type:"quantitative" },
+      color:{ field:"type", type:"nominal", scale: PROJECT_SCALE, legend:{ orient:"bottom", columns:2, title:null } },
+      tooltip:[{field:"type", title:"Project Cluster Portfolio"}, {field:"budget", title:"Funding Envelope ($B)", format:".1f"}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+
+  // Long-term Growth Timeline View
+  vegaEmbed("#vis-growth", {
+    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+    width:"container", height:340,
+    data:{ url: GROWTH_DATA },
+    mark:{ type:"line", point:{ size: 60, filled: true } },
+    encoding:{
+      x:{ field:"year", type:"ordinal", axis: { labelAngle: 0, title: "Evaluation Projection Year Target" } },
+      y:{ field:"pat", type:"quantitative", axis: { title: "Network Total Annual Trips (Millions)" } },
+      color:{ field:"type", type:"nominal", scale: { domain:["Actual", "Projected"], range:["#0057a0", "#ffd000"] }, legend:{ title:"Dataset Status Type" } },
+      tooltip:[{field:"year", title:"Target Profile Year"}, {field:"pat", title:"Trip Forecast Volume (M)"}, {field:"type", title:"Data State"}]
+    },
+    config: CFG
+  }, OPT).catch(console.error);
+});
+</script>
 </body>
 </html>
