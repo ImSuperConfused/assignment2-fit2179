@@ -48,7 +48,6 @@
     .hero::before {
       content: ''; position: absolute; inset: 0;
       background: repeating-linear-gradient(90deg, transparent 0px, transparent 60px, rgba(255,255,255,.02) 60px, rgba(255,255,255,.02) 61px);
-      pointer-events: none;
     }
     .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: end; }
     .hero-copy { padding-bottom: 60px; }
@@ -85,8 +84,8 @@
     footer p { font-family: 'Barlow', sans-serif; font-size: .82rem; color: rgba(255,255,255,.35); line-height: 1.8; }
     footer a { color: rgba(255,255,255,.5); }
 
-    .vega-embed summary { display: none !important; }
     .vega-embed { width: 100%; }
+    .loading { text-align: center; padding: 60px 20px; color: var(--muted); font-style: italic; }
 
     @media (max-width: 860px) {
       .hero-inner { grid-template-columns: 1fr; }
@@ -144,19 +143,19 @@
       <div class="card" style="margin-bottom:24px">
         <p class="card-title">Station Patronage Map — FY 2024–25</p>
         <p class="card-desc">Every dot is a real Melbourne train station, sized by annual entries. Hover for details.</p>
-        <div id="vis-map"></div>
+        <div id="vis-map" class="loading">Loading interactive map...</div>
       </div>
 
       <div class="grid-2">
         <div class="card">
           <p class="card-title">Top 15 Busiest Stations</p>
           <p class="card-desc">Average weekday entries, FY 2024–25.</p>
-          <div id="vis-top-stations"></div>
+          <div id="vis-top-stations" class="loading">Loading...</div>
         </div>
         <div class="card">
           <p class="card-title">Network-Wide Patronage by Time Band</p>
           <p class="card-desc">Total entries across all stations.</p>
-          <div id="vis-timeband"></div>
+          <div id="vis-timeband" class="loading">Loading...</div>
         </div>
       </div>
     </div>
@@ -176,19 +175,19 @@
         <div class="card">
           <p class="card-title">Weekday vs Weekend — Top 12 Stations</p>
           <p class="card-desc">Real FY 2024–25 data.</p>
-          <div id="vis-quick-summary"></div>
+          <div id="vis-quick-summary" class="loading">Loading...</div>
         </div>
         <div class="card">
           <p class="card-title">Peak Hour Share by Station</p>
           <p class="card-desc">Proportion of daily entries in AM/PM peak (top 10).</p>
-          <div id="vis-timeband2"></div>
+          <div id="vis-timeband2" class="loading">Loading...</div>
         </div>
       </div>
 
       <div class="card">
         <p class="card-title">Stacked Patronage — Weekday / Saturday / Sunday (Top 15)</p>
         <p class="card-desc">Absolute volume split by day type.</p>
-        <div id="vis-stacked"></div>
+        <div id="vis-stacked" class="loading">Loading...</div>
       </div>
     </div>
   </section>
@@ -201,19 +200,19 @@
       <div class="card" style="margin-bottom:24px">
         <p class="card-title">Patronage Distribution Across All Stations</p>
         <p class="card-desc">Most stations are small. A few CBD stations dominate.</p>
-        <div id="vis-histogram"></div>
+        <div id="vis-histogram" class="loading">Loading...</div>
       </div>
 
       <div class="grid-2">
         <div class="card">
           <p class="card-title">Saturday vs Sunday Demand</p>
           <p class="card-desc">Weekend patterns differ by corridor.</p>
-          <div id="vis-sat-sun"></div>
+          <div id="vis-sat-sun" class="loading">Loading...</div>
         </div>
         <div class="card">
           <p class="card-title">School Holiday vs Normal Weekday</p>
           <p class="card-desc">Impact of school terms on demand.</p>
-          <div id="vis-school-hol"></div>
+          <div id="vis-school-hol" class="loading">Loading...</div>
         </div>
       </div>
     </div>
@@ -228,18 +227,18 @@
         <div class="card card--dark">
           <p class="card-title card-title--light">On-Time Performance by Line</p>
           <p class="card-desc card-desc--light">% services within 5 min of schedule. Dashed line = 92% target.</p>
-          <div id="vis-performance"></div>
+          <div id="vis-performance" class="loading">Loading...</div>
         </div>
         <div class="card card--dark">
           <p class="card-title card-title--light">Patronage vs On-Time Performance</p>
           <p class="card-desc card-desc--light">Busier lines vs reliability.</p>
-          <div id="vis-scatter"></div>
+          <div id="vis-scatter" class="loading">Loading...</div>
         </div>
       </div>
 
       <div class="card card--dark">
         <p class="card-title card-title--light">Metro Train On-Time Running — 2019 to 2025</p>
-        <div id="vis-trend"></div>
+        <div id="vis-trend" class="loading">Loading...</div>
       </div>
     </div>
   </section>
@@ -251,17 +250,17 @@
 
       <div class="card" style="margin-bottom:24px">
         <p class="card-title">Major Projects — Timeline & Relative Budget</p>
-        <div id="vis-timeline"></div>
+        <div id="vis-timeline" class="loading">Loading...</div>
       </div>
 
       <div class="grid-2">
         <div class="card">
           <p class="card-title">Budget Allocation by Project Type</p>
-          <div id="vis-budget"></div>
+          <div id="vis-budget" class="loading">Loading...</div>
         </div>
         <div class="card">
           <p class="card-title">Projected Patronage Growth to 2050</p>
-          <div id="vis-growth"></div>
+          <div id="vis-growth" class="loading">Loading...</div>
         </div>
       </div>
     </div>
@@ -281,13 +280,12 @@
 </footer>
 
 <script>
-// Wrapping your script inside this event ensures that deferred external packages are loaded first
-window.addEventListener('DOMContentLoaded', () => {
-  const DATA = "data/station_entries.csv";
-  const PERF_DATA = "data/line_performance.csv";
-  const TREND_DATA = "data/punctuality_trend.csv";
-  const PROJECTS_DATA = "data/major_projects.json";
-  const GROWTH_DATA = "data/patronage_growth.csv";
+window.addEventListener('DOMContentLoaded', async () => {
+  const DATA_URL = "data/station_entries.csv";
+  const PERF_URL = "data/line_performance.csv";
+  const TREND_URL = "data/punctuality_trend.csv";
+  const PROJECTS_URL = "data/major_projects.json";
+  const GROWTH_URL = "data/patronage_growth.csv";
 
   const CFG = {
     font: "Barlow, sans-serif",
@@ -298,50 +296,60 @@ window.addEventListener('DOMContentLoaded', () => {
   };
 
   const OPT = { actions: false, renderer: "svg" };
-  
+
   const PROJECT_SCALE = {
     domain: ["Suburban Rail Loop", "Level Crossings", "Metro Tunnel", "Other"],
     range: ["#0057a0", "#00843d", "#ffd000", "#5a6a7a"]
   };
 
-  // Hero Viz
+  // Load data (Vega will handle CSV, we preload JSON)
+  let projectsData;
+  try {
+    projectsData = await fetch(PROJECTS_URL).then(r => r.json());
+  } catch (e) {
+    console.warn("Projects data not loaded");
+  }
+
+  // ==================== HERO ====================
   vegaEmbed("#hero-viz", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:300,
-    data:{ url: DATA },
+    data:{ url: DATA_URL },
     transform:[{ filter:"datum.Pax_annual > 500000" }, { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_annual",order:"descending"}] }, { filter:"datum.rank <= 10" }],
     mark:{ type:"circle", opacity:0.85 },
     encoding:{
       x:{ field:"Pax_weekday", type:"quantitative", axis:{ title:"Avg Weekday Entries", format:"," }},
       y:{ field:"Pax_Saturday", type:"quantitative", axis:{ title:"Avg Saturday Entries", format:"," }},
-      size:{ field:"Pax_annual", type:"quantitative", scale:{range:[200,3000]}, legend:null },
+      size:{ field:"Pax_annual", type:"quantitative", scale:{range:[180,2200]}, legend:null },
       color:{ value:"#ffd000" },
       tooltip:[{field:"Stop_name", title:"Station"},{field:"Pax_annual", title:"Annual Entries", format:","},{field:"Pax_weekday", title:"Weekday Avg", format:","},{field:"Pax_Saturday", title:"Sat Avg", format:","}]
     },
     config:{ ...CFG, background:"transparent" }
-  }, OPT).catch(console.error);
+  }, OPT);
 
-  // Map
+  // ==================== MAP ====================
   vegaEmbed("#vis-map", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:520,
-    data:{ url: DATA },
+    data:{ url: DATA_URL },
+    projection: { type: "mercator", center: [144.96, -37.81], scale: 12500 },
     mark:{ type:"circle", opacity:0.75, stroke:"#0057a0", strokeWidth:0.5 },
     encoding:{
       longitude:{ field:"Stop_long", type:"quantitative" },
       latitude:{ field:"Stop_lat", type:"quantitative" },
-      size:{ field:"Pax_annual", type:"quantitative", scale:{ type:"sqrt", range:[15,2200] }, legend:{ title:"Annual Entries", format:".2s", orient:"bottom-right" }},
+      size:{ field:"Pax_annual", type:"quantitative", scale:{ type:"sqrt", range:[15,1800] }, legend:{ title:"Annual Entries", format:".2s", orient:"bottom-right" }},
       color:{ field:"Pax_annual", type:"quantitative", scale:{ scheme:"blues", domain:[0,25000000] }, legend:null },
       tooltip:[{field:"Stop_name", title:"Station"},{field:"Pax_annual", title:"Annual Entries", format:","}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
 
+  // ==================== REMAINING CHARTS (same structure as original) ====================
   // Top 15 Stations
   vegaEmbed("#vis-top-stations", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:400,
-    data:{ url: DATA },
+    data:{ url: DATA_URL },
     transform:[{ window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] }, { filter:"datum.rank <= 15" }],
     mark:{ type:"bar", cornerRadiusEnd:3 },
     encoding:{
@@ -351,13 +359,13 @@ window.addEventListener('DOMContentLoaded', () => {
       tooltip:[{field:"Stop_name", title:"Station"}, {field:"Pax_weekday", title:"Weekday Entries", format:","}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
 
   // Time Band
   vegaEmbed("#vis-timeband", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:360,
-    data:{ url: DATA },
+    data:{ url: DATA_URL },
     transform:[
       { fold:["Pax_pre_AM_peak","Pax_AM_peak","Pax_interpeak","Pax_PM_peak","Pax_PM_late"], as:["band","entries"] },
       { aggregate:[{op:"sum",field:"entries",as:"total"}], groupby:["band"] },
@@ -371,13 +379,13 @@ window.addEventListener('DOMContentLoaded', () => {
       tooltip:[{field:"label", title:"Time Horizon"}, {field:"total", title:"Combined Boardings", format:","}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
 
   // Weekday vs Weekend
   vegaEmbed("#vis-quick-summary", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:400,
-    data:{ url: DATA },
+    data:{ url: DATA_URL },
     transform:[
       { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
       { filter:"datum.rank <= 12" },
@@ -393,13 +401,13 @@ window.addEventListener('DOMContentLoaded', () => {
       tooltip:[{field:"Stop_name", title:"Station"}, {field:"Day"}, {field:"val", title:"Average Entries", format:","}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
 
   // Peak Hour Share
   vegaEmbed("#vis-timeband2", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:400,
-    data:{ url: DATA },
+    data:{ url: DATA_URL },
     transform:[
       { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
       { filter:"datum.rank <= 10" },
@@ -414,13 +422,13 @@ window.addEventListener('DOMContentLoaded', () => {
       tooltip:[{field:"Stop_name", title:"Station"}, {field:"Band"}, {field:"val", title:"Entries", format:","}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
 
   // Stacked
   vegaEmbed("#vis-stacked", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:320,
-    data:{ url: DATA },
+    data:{ url: DATA_URL },
     transform:[
       { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
       { filter:"datum.rank <= 15" },
@@ -435,13 +443,13 @@ window.addEventListener('DOMContentLoaded', () => {
       tooltip:[{field:"Stop_name", title:"Station"}, {field:"DayType", title:"Profile"}, {field:"val", title:"Entries", format:","}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
 
   // Histogram
   vegaEmbed("#vis-histogram", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:300,
-    data:{ url: DATA },
+    data:{ url: DATA_URL },
     mark:{ type:"bar", color:"#0057a0" },
     encoding:{
       x:{ field:"Pax_annual", type:"quantitative", bin:{ maxbins:30 }, axis:{ title:"Annual Boarding Volume Tranches", format:".2s" }},
@@ -449,13 +457,13 @@ window.addEventListener('DOMContentLoaded', () => {
       tooltip:[{aggregate:"count", title:"Station Frequency"}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
 
   // Sat vs Sun
   vegaEmbed("#vis-sat-sun", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
-    data:{ url: DATA },
+    data:{ url: DATA_URL },
     mark:{ type:"point", filled:true, opacity:0.7, size:100 },
     encoding:{
       x:{ field:"Pax_Saturday", type:"quantitative", axis:{ title:"Average Saturday Ridership", format:"," } },
@@ -464,13 +472,13 @@ window.addEventListener('DOMContentLoaded', () => {
       tooltip:[{field:"Stop_name", title:"Station"}, {field:"Pax_Saturday", title:"Sat Avg", format:","}, {field:"Pax_Sunday", title:"Sun Avg", format:","}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
 
   // School Holiday
   vegaEmbed("#vis-school-hol", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
-    data:{ url: DATA },
+    data:{ url: DATA_URL },
     transform:[
       { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
       { filter:"datum.rank <= 20" },
@@ -484,14 +492,14 @@ window.addEventListener('DOMContentLoaded', () => {
       tooltip:[{field:"Stop_name", title:"Station"}, {field:"pct", title:"Variance Drop-off", format:".2f"}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
 
   // Performance
   vegaEmbed("#vis-performance", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
     layer:[{
-      data:{ url: PERF_DATA },
+      data:{ url: PERF_URL },
       mark:{ type:"bar", cornerRadiusEnd:3 },
       encoding:{
         y:{ field:"line", type:"nominal", sort:"-x", axis:{ title:null, labelColor:"#fff" } },
@@ -505,14 +513,14 @@ window.addEventListener('DOMContentLoaded', () => {
       encoding:{ x:{ field:"x", type:"quantitative" }}
     }],
     config:{ ...CFG, background:"transparent" }
-  }, OPT).catch(console.error);
+  }, OPT);
 
   // Scatter
   vegaEmbed("#vis-scatter", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
     layer:[{
-      data:{ url: PERF_DATA },
+      data:{ url: PERF_URL },
       mark:{ type:"point", filled:true, size:150 },
       encoding:{
         x:{ field:"pat", type:"quantitative", axis:{ title:"Annual Line Ridership Weight (Millions)", labelColor:"#fff", titleColor:"#fff" } },
@@ -521,18 +529,18 @@ window.addEventListener('DOMContentLoaded', () => {
         tooltip:[{field:"line", title:"Line Hub"}, {field:"pat", title:"Ridership (M)"}, {field:"otp", title:"Punctuality Score", format:".1f"}]
       }
     },{
-      data:{ url: PERF_DATA },
+      data:{ url: PERF_URL },
       mark:{ type:"text", dy:-12, fontSize:11, color:"#fff", fontWeight:500 },
       encoding:{ x:{ field:"pat", type:"quantitative" }, y:{ field:"otp", type:"quantitative" }, text:{ field:"line", type:"nominal" }}
     }],
     config:{ ...CFG, background:"transparent" }
-  }, OPT).catch(console.error);
+  }, OPT);
 
-  // Trend Area Horizon
+  // Trend
   vegaEmbed("#vis-trend", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:280,
-    data:{ url: TREND_DATA },
+    data:{ url: TREND_URL },
     layer:[{
       mark:{ type:"area", line:{ color:"#ffd000", size:2 }, color:"rgba(255, 208, 0, 0.15)"},
       encoding:{
@@ -546,13 +554,13 @@ window.addEventListener('DOMContentLoaded', () => {
       encoding:{ y:{ field:"y", type:"quantitative" }}
     }],
     config:{ ...CFG, background:"transparent" }
-  }, OPT).catch(console.error);
+  }, OPT);
 
-  // Timeline Gantt Project View
+  // Timeline
   vegaEmbed("#vis-timeline", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:300,
-    data:{ url: PROJECTS_DATA },
+    data:{ values: projectsData || [] },
     mark:{ type:"bar", cornerRadius:4 },
     encoding:{
       y:{ field:"project", type:"nominal", axis:{ title:null }},
@@ -563,13 +571,13 @@ window.addEventListener('DOMContentLoaded', () => {
       tooltip:[{field:"project", title:"Strategic Project"}, {field:"start", title:"Commenced"}, {field:"end", title:"Target Opening"}, {field:"budget", title:"Approved Budget ($B)", format:".1f"}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
 
-  // Budget Donut Ring Allocation
+  // Budget
   vegaEmbed("#vis-budget", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
-    data:{ url: PROJECTS_DATA },
+    data:{ values: projectsData || [] },
     mark:{ type:"arc", innerRadius:80, stroke:"#fff", strokeWidth:1 },
     encoding:{
       theta:{ field:"budget", type:"quantitative" },
@@ -577,13 +585,13 @@ window.addEventListener('DOMContentLoaded', () => {
       tooltip:[{field:"type", title:"Project Cluster Portfolio"}, {field:"budget", title:"Funding Envelope ($B)", format:".1f"}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
 
-  // Long-term Growth Timeline View
+  // Growth
   vegaEmbed("#vis-growth", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
-    data:{ url: GROWTH_DATA },
+    data:{ url: GROWTH_URL },
     mark:{ type:"line", point:{ size: 60, filled: true } },
     encoding:{
       x:{ field:"year", type:"ordinal", axis: { labelAngle: 0, title: "Evaluation Projection Year Target" } },
@@ -592,7 +600,9 @@ window.addEventListener('DOMContentLoaded', () => {
       tooltip:[{field:"year", title:"Target Profile Year"}, {field:"pat", title:"Trip Forecast Volume (M)"}, {field:"type", title:"Data State"}]
     },
     config: CFG
-  }, OPT).catch(console.error);
+  }, OPT);
+
+  console.log("✅ Melbourne Transport Dashboard loaded successfully");
 });
 </script>
 </body>
