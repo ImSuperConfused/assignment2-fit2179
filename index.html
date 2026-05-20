@@ -9,6 +9,13 @@
   <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.19.0" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.25.0" defer></script>
 
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+
+  <!-- PapaParse for CSV -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -87,6 +94,62 @@
     .vega-embed { width: 100%; }
     .loading { text-align: center; padding: 60px 20px; color: var(--muted); font-style: italic; }
 
+    /* ── Leaflet map ── */
+    #vis-map {
+      width: 100%;
+      height: 520px;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Dark-tinted tiles via CSS filter */
+    #vis-map .leaflet-tile-pane {
+      filter: brightness(0.55) saturate(0.6) hue-rotate(195deg);
+    }
+
+    /* Legend */
+    .map-legend {
+      background: rgba(10, 22, 40, 0.88);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-family: 'Barlow', sans-serif;
+      font-size: .78rem;
+      color: rgba(255,255,255,.7);
+      line-height: 2;
+      backdrop-filter: blur(6px);
+    }
+    .map-legend strong {
+      display: block;
+      color: var(--yellow);
+      font-size: .72rem;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .legend-row { display: flex; align-items: center; gap: 8px; }
+    .legend-dot {
+      border-radius: 50%;
+      flex-shrink: 0;
+      opacity: .85;
+    }
+
+    /* Leaflet popup override */
+    .leaflet-popup-content-wrapper {
+      background: #0a1628 !important;
+      border: 1px solid rgba(255,208,0,.3) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5) !important;
+      color: #fff !important;
+      font-family: 'Barlow', sans-serif !important;
+    }
+    .leaflet-popup-tip { background: #0a1628 !important; }
+    .leaflet-popup-content { margin: 14px 16px !important; font-size: .88rem; line-height: 1.6; }
+    .popup-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.2rem; font-weight: 700; color: #ffd000; margin-bottom: 4px; }
+    .popup-row { display: flex; justify-content: space-between; gap: 24px; color: rgba(255,255,255,.65); }
+    .popup-val { color: #fff; font-weight: 600; }
+
     @media (max-width: 860px) {
       .hero-inner { grid-template-columns: 1fr; }
       .hero-panel { display: none; }
@@ -142,8 +205,8 @@
 
       <div class="card" style="margin-bottom:24px">
         <p class="card-title">Station Patronage Map — FY 2024–25</p>
-        <p class="card-desc">Every dot is a real Melbourne train station, sized by annual entries. Hover for details.</p>
-        <div id="vis-map" class="loading">Loading interactive map...</div>
+        <p class="card-desc">Every circle is a real Melbourne train station, sized and coloured by annual entries. Click any station for details.</p>
+        <div id="vis-map"></div>
       </div>
 
       <div class="grid-2">
@@ -276,12 +339,94 @@
 </footer>
 
 <script>
+// ── Colour scale: map annual patronage → colour ──────────────────────────────
+function patronageColour(annual) {
+  if (annual >= 10_000_000) return '#ffd000'; // gold  — mega stations
+  if (annual >= 4_000_000)  return '#0099e6'; // bright blue
+  if (annual >= 1_500_000)  return '#0057a0'; // mid blue
+  if (annual >= 500_000)    return '#00843d'; // green
+  return '#5a6a7a';                           // grey  — quiet stations
+}
+
+// ── Radius scale (sqrt of annual patronage, clamped) ────────────────────────
+function patronageRadius(annual) {
+  return Math.max(4, Math.min(28, Math.sqrt(annual / 8000)));
+}
+
+// ── Format helpers ───────────────────────────────────────────────────────────
+function fmt(n) { return Number(n).toLocaleString('en-AU'); }
+
+// ── Build the Leaflet map ────────────────────────────────────────────────────
+function buildLeafletMap(rows) {
+  const map = L.map('vis-map', {
+    center: [-37.82, 144.97],
+    zoom: 11,
+    zoomControl: true,
+    attributionControl: true,
+  });
+
+  // OpenStreetMap tiles — CSS filter applied via .leaflet-tile-pane
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 18,
+  }).addTo(map);
+
+  // Plot each station
+  rows.forEach(row => {
+    const lat  = parseFloat(row.Stop_lat);
+    const lng  = parseFloat(row.Stop_long);
+    const ann  = parseFloat(row.Pax_annual)  || 0;
+    const wday = parseFloat(row.Pax_weekday) || 0;
+    const sat  = parseFloat(row.Pax_Saturday)|| 0;
+    const sun  = parseFloat(row.Pax_Sunday)  || 0;
+
+    if (!lat || !lng) return;
+
+    const circle = L.circleMarker([lat, lng], {
+      radius:      patronageRadius(ann),
+      fillColor:   patronageColour(ann),
+      color:       'rgba(255,255,255,0.25)',
+      weight:      1,
+      fillOpacity: 0.85,
+    }).addTo(map);
+
+    circle.bindPopup(`
+      <div class="popup-name">${row.Stop_name}</div>
+      <div class="popup-row"><span>Annual entries</span><span class="popup-val">${fmt(ann)}</span></div>
+      <div class="popup-row"><span>Avg weekday</span><span class="popup-val">${fmt(wday)}</span></div>
+      <div class="popup-row"><span>Avg Saturday</span><span class="popup-val">${fmt(sat)}</span></div>
+      <div class="popup-row"><span>Avg Sunday</span><span class="popup-val">${fmt(sun)}</span></div>
+    `, { maxWidth: 260 });
+
+    // Subtle hover highlight
+    circle.on('mouseover', () => circle.setStyle({ weight: 2, color: '#ffd000' }));
+    circle.on('mouseout',  () => circle.setStyle({ weight: 1, color: 'rgba(255,255,255,0.25)' }));
+  });
+
+  // Legend
+  const legend = L.control({ position: 'bottomright' });
+  legend.onAdd = () => {
+    const div = L.DomUtil.create('div', 'map-legend');
+    div.innerHTML = `
+      <strong>Annual Entries</strong>
+      <div class="legend-row"><div class="legend-dot" style="width:20px;height:20px;background:#ffd000"></div> 10 M +</div>
+      <div class="legend-row"><div class="legend-dot" style="width:16px;height:16px;background:#0099e6"></div> 4 – 10 M</div>
+      <div class="legend-row"><div class="legend-dot" style="width:13px;height:13px;background:#0057a0"></div> 1.5 – 4 M</div>
+      <div class="legend-row"><div class="legend-dot" style="width:10px;height:10px;background:#00843d"></div> 500 K – 1.5 M</div>
+      <div class="legend-row"><div class="legend-dot" style="width:7px;height:7px;background:#5a6a7a"></div>  &lt; 500 K</div>
+    `;
+    return div;
+  };
+  legend.addTo(map);
+}
+
+// ── Main init ────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
-  const DATA_URL = "data/station_entries.csv";
-  const PERF_URL = "data/line_performance.csv";
-  const TREND_URL = "data/punctuality_trend.csv";
+  const DATA_URL     = "data/station_entries.csv";
+  const PERF_URL     = "data/line_performance.csv";
+  const TREND_URL    = "data/punctuality_trend.csv";
   const PROJECTS_URL = "data/major_projects.json";
-  const GROWTH_URL = "data/patronage_growth.csv";
+  const GROWTH_URL   = "data/patronage_growth.csv";
 
   const CFG = {
     font: "Barlow, sans-serif",
@@ -298,7 +443,20 @@ window.addEventListener('DOMContentLoaded', async () => {
     range: ["#0057a0", "#00843d", "#ffd000", "#5a6a7a"]
   };
 
-  // Load data (Vega will handle CSV, we preload JSON)
+  // ── Load CSV for Leaflet map via PapaParse ──
+  Papa.parse(DATA_URL, {
+    download: true,
+    header: true,
+    skipEmptyLines: true,
+    complete: ({ data }) => buildLeafletMap(data),
+    error: (err) => {
+      console.warn('Could not load station CSV for map:', err);
+      document.getElementById('vis-map').innerHTML =
+        '<p style="padding:60px;text-align:center;color:#5a6a7a">Map data unavailable — place station_entries.csv in data/</p>';
+    }
+  });
+
+  // ── Load projects JSON ──
   let projectsData;
   try {
     projectsData = await fetch(PROJECTS_URL).then(r => r.json());
@@ -323,25 +481,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config:{ ...CFG, background:"transparent" }
   }, OPT);
 
-  // ==================== MAP ====================
-  vegaEmbed("#vis-map", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:520,
-    data:{ url: DATA_URL },
-    projection: { type: "mercator", center: [144.96, -37.81], scale: 12500 },
-    mark:{ type:"circle", opacity:0.75, stroke:"#0057a0", strokeWidth:0.5 },
-    encoding:{
-      longitude:{ field:"Stop_long", type:"quantitative" },
-      latitude:{ field:"Stop_lat", type:"quantitative" },
-      size:{ field:"Pax_annual", type:"quantitative", scale:{ type:"sqrt", range:[15,1800] }, legend:{ title:"Annual Entries", format:".2s", orient:"bottom-right" }},
-      color:{ field:"Pax_annual", type:"quantitative", scale:{ scheme:"blues", domain:[0,25000000] }, legend:null },
-      tooltip:[{field:"Stop_name", title:"Station"},{field:"Pax_annual", title:"Annual Entries", format:","}]
-    },
-    config: CFG
-  }, OPT);
-
-  // ==================== REMAINING CHARTS (same structure as original) ====================
-  // Top 15 Stations
+  // ==================== TOP 15 STATIONS ====================
   vegaEmbed("#vis-top-stations", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:400,
@@ -357,7 +497,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config: CFG
   }, OPT);
 
-  // Time Band
+  // ==================== TIME BAND ====================
   vegaEmbed("#vis-timeband", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:360,
@@ -377,7 +517,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config: CFG
   }, OPT);
 
-  // Weekday vs Weekend
+  // ==================== WEEKDAY VS WEEKEND ====================
   vegaEmbed("#vis-quick-summary", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:400,
@@ -399,7 +539,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config: CFG
   }, OPT);
 
-  // Peak Hour Share
+  // ==================== PEAK HOUR SHARE ====================
   vegaEmbed("#vis-timeband2", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:400,
@@ -420,7 +560,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config: CFG
   }, OPT);
 
-  // Stacked
+  // ==================== STACKED ====================
   vegaEmbed("#vis-stacked", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:320,
@@ -441,7 +581,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config: CFG
   }, OPT);
 
-  // Histogram
+  // ==================== HISTOGRAM ====================
   vegaEmbed("#vis-histogram", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:300,
@@ -455,7 +595,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config: CFG
   }, OPT);
 
-  // Sat vs Sun
+  // ==================== SAT VS SUN ====================
   vegaEmbed("#vis-sat-sun", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
@@ -470,7 +610,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config: CFG
   }, OPT);
 
-  // School Holiday
+  // ==================== SCHOOL HOLIDAY ====================
   vegaEmbed("#vis-school-hol", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
@@ -490,7 +630,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config: CFG
   }, OPT);
 
-  // Performance
+  // ==================== PERFORMANCE ====================
   vegaEmbed("#vis-performance", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
@@ -511,7 +651,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config:{ ...CFG, background:"transparent" }
   }, OPT);
 
-  // Scatter
+  // ==================== SCATTER ====================
   vegaEmbed("#vis-scatter", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
@@ -532,7 +672,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config:{ ...CFG, background:"transparent" }
   }, OPT);
 
-  // Trend
+  // ==================== TREND ====================
   vegaEmbed("#vis-trend", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:280,
@@ -552,7 +692,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config:{ ...CFG, background:"transparent" }
   }, OPT);
 
-  // Timeline
+  // ==================== TIMELINE ====================
   vegaEmbed("#vis-timeline", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:300,
@@ -569,7 +709,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config: CFG
   }, OPT);
 
-  // Budget
+  // ==================== BUDGET ====================
   vegaEmbed("#vis-budget", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
@@ -583,7 +723,7 @@ window.addEventListener('DOMContentLoaded', async () => {
     config: CFG
   }, OPT);
 
-  // Growth
+  // ==================== GROWTH ====================
   vegaEmbed("#vis-growth", {
     $schema:"https://vega.github.io/schema/vega-lite/v5.json",
     width:"container", height:340,
