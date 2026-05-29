@@ -1,745 +1,678 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Melbourne's Public Transport Network</title>
-
-  <script src="https://cdn.jsdelivr.net/npm/vega@5.28.0" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5.19.0" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6.25.0" defer></script>
-
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
-
-  <!-- PapaParse for CSV -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Lora:ital,wght@0,400;0,600;1,400&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
-
-  <style>
-    :root {
-      --navy:   #0a1628;
-      --blue:   #0057a0;
-      --yellow: #ffd000;
-      --green:  #00843d;
-      --red:    #c8102e;
-      --white:  #ffffff;
-      --off:    #f5f6f8;
-      --muted:  #5a6a7a;
-      --border: #dde2e8;
-      --ink:    #1a2332;
-    }
-
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Lora', Georgia, serif; color: var(--ink); background: var(--white); -webkit-font-smoothing: antialiased; }
-    a { color: var(--blue); }
-    a:hover { text-decoration: underline; }
-
-    h1, h2, h3, h4 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; line-height: 1.1; letter-spacing: -0.01em; }
-    h1 { font-size: clamp(2.8rem, 6vw, 5.5rem); }
-    h2 { font-size: clamp(2rem,  4vw, 3.2rem); }
-    h3 { font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 700; }
-    p  { font-size: 1.05rem; line-height: 1.8; color: var(--muted); }
-
-    .wrap { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
-    .section { padding: 80px 0; }
-    .section--dark { background: var(--navy); }
-    .section--off  { background: var(--off); }
-
-    .hero { background: var(--navy); padding: 70px 0 0; overflow: hidden; position: relative; }
-    .hero::before {
-      content: ''; position: absolute; inset: 0;
-      background: repeating-linear-gradient(90deg, transparent 0px, transparent 60px, rgba(255,255,255,.02) 60px, rgba(255,255,255,.02) 61px);
-    }
-    .hero-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: end; }
-    .hero-copy { padding-bottom: 60px; }
-    .hero-eyebrow { font-family: 'Barlow', sans-serif; font-size: .8rem; font-weight: 600; letter-spacing: .15em; text-transform: uppercase; color: var(--yellow); margin-bottom: 20px; display: block; }
-    .hero h1 { color: var(--white); margin-bottom: 20px; }
-    .hero-lead { font-family: 'Barlow', sans-serif; font-size: 1.1rem; color: rgba(255,255,255,.65); line-height: 1.7; max-width: 480px; margin-bottom: 40px; }
-
-    .hero-stats { display: grid; grid-template-columns: repeat(2,1fr); gap: 1px; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); border-radius: 10px; overflow: hidden; }
-    .hero-stat { padding: 22px 20px; background: rgba(255,255,255,.04); }
-    .hero-stat__num { font-family: 'Barlow Condensed', sans-serif; font-size: 2.6rem; font-weight: 900; color: var(--yellow); line-height: 1; display: block; margin-bottom: 4px; }
-    .hero-stat__lbl { font-family: 'Barlow', sans-serif; font-size: .82rem; color: rgba(255,255,255,.5); }
-
-    .hero-panel { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); border-bottom: none; border-radius: 12px 12px 0 0; min-height: 360px; display: flex; align-items: center; padding: 20px; }
-    .line-strip { display: flex; height: 6px; border-radius: 0 0 4px 4px; overflow: hidden; }
-    .line-strip span { flex: 1; }
-
-    .sec-label { font-family: 'Barlow', sans-serif; font-size: .75rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--blue); margin-bottom: 12px; display: block; }
-    .sec-label--light { color: var(--yellow); }
-
-    .card { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 28px 28px 20px; }
-    .card--dark { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.08); }
-    .card-title { font-family: 'Barlow Condensed', sans-serif; font-size: 1.35rem; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
-    .card-title--light { color: var(--white); }
-    .card-desc { font-family: 'Barlow', sans-serif; font-size: .9rem; color: var(--muted); line-height: 1.55; margin-bottom: 18px; }
-    .card-desc--light { color: rgba(255,255,255,.5); }
-
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-
-    .stat-banner { background: var(--blue); color: var(--white); text-align: center; padding: 52px 24px; }
-    .stat-banner h2 { color: var(--white); font-size: clamp(2rem,4vw,3.6rem); }
-    .stat-banner p  { color: rgba(255,255,255,.75); font-family: 'Barlow', sans-serif; margin-top: 10px; font-size: 1.05rem; }
-
-    footer { background: #060d1a; padding: 40px 0; text-align: center; }
-    footer p { font-family: 'Barlow', sans-serif; font-size: .82rem; color: rgba(255,255,255,.35); line-height: 1.8; }
-    footer a { color: rgba(255,255,255,.5); }
-
-    .vega-embed { width: 100%; }
-    .loading { text-align: center; padding: 60px 20px; color: var(--muted); font-style: italic; }
-
-    /* ── Leaflet map ── */
-    #vis-map {
-      width: 100%;
-      height: 520px;
-      border-radius: 8px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* Dark-tinted tiles via CSS filter */
-    #vis-map .leaflet-tile-pane {
-      filter: brightness(0.55) saturate(0.6) hue-rotate(195deg);
-    }
-
-    /* Legend */
-    .map-legend {
-      background: rgba(10, 22, 40, 0.88);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 8px;
-      padding: 12px 14px;
-      font-family: 'Barlow', sans-serif;
-      font-size: .78rem;
-      color: rgba(255,255,255,.7);
-      line-height: 2;
-      backdrop-filter: blur(6px);
-    }
-    .map-legend strong {
-      display: block;
-      color: var(--yellow);
-      font-size: .72rem;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-    .legend-row { display: flex; align-items: center; gap: 8px; }
-    .legend-dot {
-      border-radius: 50%;
-      flex-shrink: 0;
-      opacity: .85;
-    }
-
-    /* Leaflet popup override */
-    .leaflet-popup-content-wrapper {
-      background: #0a1628 !important;
-      border: 1px solid rgba(255,208,0,.3) !important;
-      border-radius: 8px !important;
-      box-shadow: 0 8px 32px rgba(0,0,0,.5) !important;
-      color: #fff !important;
-      font-family: 'Barlow', sans-serif !important;
-    }
-    .leaflet-popup-tip { background: #0a1628 !important; }
-    .leaflet-popup-content { margin: 14px 16px !important; font-size: .88rem; line-height: 1.6; }
-    .popup-name { font-family: 'Barlow Condensed', sans-serif; font-size: 1.2rem; font-weight: 700; color: #ffd000; margin-bottom: 4px; }
-    .popup-row { display: flex; justify-content: space-between; gap: 24px; color: rgba(255,255,255,.65); }
-    .popup-val { color: #fff; font-weight: 600; }
-
-    @media (max-width: 860px) {
-      .hero-inner { grid-template-columns: 1fr; }
-      .hero-panel { display: none; }
-      .grid-2 { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 520px) {
-      .wrap { padding: 0 16px; }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tracks Across Australia — A Nation on Rails</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Courier+Prime:wght@400;700&family=Libre+Franklin:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
 </head>
 <body>
 
 <header class="hero">
-  <div class="wrap">
-    <div class="hero-inner">
-      <div class="hero-copy">
-        <span class="hero-eyebrow">Melbourne · A City in Motion</span>
-        <h1>The Network<br>That Moves<br>5 Million People</h1>
-        <p class="hero-lead">
-          Every weekday, nearly 800,000 Melburnians board a train, tram, or bus.
-          This is the story of the infrastructure behind those journeys.
-        </p>
-        <div class="hero-stats">
-          <div class="hero-stat"><span class="hero-stat__num">245</span><span class="hero-stat__lbl">Train stations</span></div>
-          <div class="hero-stat"><span class="hero-stat__num">16</span><span class="hero-stat__lbl">Metro lines</span></div>
-          <div class="hero-stat"><span class="hero-stat__num">250 km</span><span class="hero-stat__lbl">Tram routes</span></div>
-          <div class="hero-stat"><span class="hero-stat__num">$150B</span><span class="hero-stat__lbl">Planned investment</span></div>
-        </div>
-      </div>
-      <div>
-        <div class="hero-panel"><div id="hero-viz" style="width:100%"></div></div>
-        <div class="line-strip">
-          <span style="background:#152C6B"></span>
-          <span style="background:#FFC72C"></span>
-          <span style="background:#00843D"></span>
-          <span style="background:#0057A0"></span>
-          <span style="background:#C8102E"></span>
-          <span style="background:#E8556F"></span>
-          <span style="background:#6F5091"></span>
-          <span style="background:#FF6B35"></span>
-        </div>
-      </div>
+  <div class="hero-rail-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">FIT2179 Data Visualisation 2 · Monash University · Semester 1, 2026</div>
+    <h1 class="hero-title">Tracks Across<br><em>Australia</em></h1>
+    <p class="hero-subtitle">The untold story of a nation on rails — from iron-ore Pilbara to the Harbour City, from century-old gauge wars to a billion-dollar building boom.</p>
+    <div class="hero-stats">
+      <div class="stat-item"><span class="stat-number" data-target="33000" data-suffix=" km">0</span><span class="stat-label">national railway network</span></div>
+      <div class="stat-item"><span class="stat-number" data-target="627" data-suffix=" M">0</span><span class="stat-label">urban rail trips in 2022–23</span></div>
+      <div class="stat-item"><span class="stat-number" data-prefix="$" data-target="17" data-suffix=" B">0</span><span class="stat-label">invested in rail 2023–24</span></div>
+      <div class="stat-item"><span class="stat-number" data-target="3" data-suffix=" gauges">0</span><span class="stat-label">different track widths in use</span></div>
     </div>
+    <div class="scroll-hint">Scroll to explore ↓</div>
   </div>
 </header>
 
-<main>
-  <section class="section">
-    <div class="wrap">
-      <span class="sec-label">Section 01 — Infrastructure</span>
-      <h2 style="margin-bottom:10px">The Network at a Glance</h2>
-      <p style="max-width:640px; margin-bottom:48px">Melbourne's metropolitan rail network connects outer suburbs to the CBD through 16 lines and 245 stations.</p>
+<nav class="chapter-nav">
+  <a href="#network">The Network</a>
+  <a href="#passengers">Passengers</a>
+  <a href="#covid">COVID Cliff</a>
+  <a href="#reliability">Reliability</a>
+  <a href="#freight">Freight</a>
+  <a href="#gauges">Gauge Wars</a>
+  <a href="#investment">Investment</a>
+</nav>
 
-      <div class="card" style="margin-bottom:24px">
-        <p class="card-title">Station Patronage Map — FY 2024–25</p>
-        <p class="card-desc">Every circle is a real Melbourne train station, sized and coloured by annual entries. Click any station for details.</p>
-        <div id="vis-map"></div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <p class="card-title">Top 15 Busiest Stations</p>
-          <p class="card-desc">Average weekday entries, FY 2024–25.</p>
-          <div id="vis-top-stations" class="loading">Loading...</div>
-        </div>
-        <div class="card">
-          <p class="card-title">Network-Wide Patronage by Time Band</p>
-          <p class="card-desc">Total entries across all stations.</p>
-          <div id="vis-timeband" class="loading">Loading...</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <div class="stat-banner">
-    <h2>In Toorak, 95% of residents live within 400 m of a station.</h2>
-    <p>In Melton? Just 12%. Distance from the CBD determines access.</p>
+<!-- ═══ CH 1 — NETWORK ══════════════════════════════════════════════ -->
+<section id="network" class="chapter">
+  <div class="chapter-label">Chapter 1 — The Network</div>
+  <h2 class="chapter-title">Australia's Spine of Steel</h2>
+  <p class="chapter-intro">Over 33,000 kilometres of railway crisscross a continent the size of Europe. This network carries everything from iron ore across the Pilbara to commuters through Sydney's tunnels — yet it remains largely invisible to the average Australian.</p>
+  <p class="chapter-body">The map below plots every major rail corridor colour-coded by <strong>track gauge</strong>. Standard-gauge lines (amber) form the interstate spine. Victoria's broad-gauge (blue) network is the country's most intensively used. Queensland's vast narrow-gauge (red) system stretches north to Cairns and west to Mt Isa. Hover any line for details.</p>
+  <div class="viz-container viz-wide reveal">
+    <h3 class="viz-title">Map 1 — National rail network by track gauge</h3>
+    <div id="viz-network-map"></div>
+    <p class="viz-caption">Major corridors coloured by gauge. Line thickness encodes service intensity: thick = interstate or heavy-haul; thin = regional or urban. Hover for line name, operator and length.<br><em>Source: Geoscience Australia Foundation Rail Infrastructure dataset; ARTC Network Map 2024.</em></p>
   </div>
+  <div class="callout-grid three-cols">
+    <div class="callout reveal"><div class="callout-swatch" style="background:#f0a500"></div><div class="callout-label">Standard gauge (1,435 mm)</div><div class="callout-value">~7,900 km</div><div class="callout-desc">Interstate spine: Sydney–Perth, Adelaide–Darwin. Enables through running across state borders.</div></div>
+    <div class="callout reveal"><div class="callout-swatch" style="background:#e05252"></div><div class="callout-label">Narrow gauge (1,067 mm)</div><div class="callout-value">~15,500 km</div><div class="callout-desc">Queensland, WA Pilbara &amp; Tasmania. The most kilometres of any gauge — a Queensland colonial legacy.</div></div>
+    <div class="callout reveal"><div class="callout-swatch" style="background:#4a9fd4"></div><div class="callout-label">Broad gauge (1,600 mm)</div><div class="callout-value">~4,380 km</div><div class="callout-desc">Victoria's suburban &amp; regional network. A colonial-era decision that still shapes travel today.</div></div>
+  </div>
+</section>
 
-  <section class="section section--off">
-    <div class="wrap">
-      <span class="sec-label">Section 02 — Usage Patterns</span>
-      <h2 style="margin-bottom:10px">How Melburnians Actually Travel</h2>
+<!-- ═══ CH 2 — PASSENGERS ════════════════════════════════════════════ -->
+<section id="passengers" class="chapter chapter-alt">
+  <div class="chapter-label">Chapter 2 — Passengers</div>
+  <h2 class="chapter-title">Cities in Motion</h2>
+  <p class="chapter-intro">Urban heavy rail is how Australians get to work. In 2022–23, the five major capital city networks carried over <strong>627 million passengers</strong> — equivalent to every Australian catching the train 24 times.</p>
+  <p class="chapter-body">Sydney dominates, carrying more than the other four cities combined. But the fastest-growing story is Perth: its METRONET expansion keeps pushing patronage higher even as Melbourne and Sydney still recover from the pandemic.</p>
+  <div class="viz-row">
+    <div class="viz-container viz-main reveal">
+      <h3 class="viz-title">Map 2 — Annual rail boardings by city (2022–23)</h3>
+      <div id="viz-bubble-map"></div>
+      <p class="viz-caption">Circle area is proportional to annual heavy-rail boardings. Hover for detail.<br><em>Source: BITRE Trainline 12, 2025.</em></p>
+    </div>
+    <div class="viz-container viz-side reveal">
+      <h3 class="viz-title">Scatter — Patronage vs on-time performance, 2018–2023</h3>
+      <div id="viz-scatter"></div>
+      <p class="viz-caption">Each point = one city × one year. Size = boardings. Shape = pandemic phase. Click a city in the legend to isolate it.<br><em>Sources: BITRE Trainline 12 (patronage); state government annual reports (OTP).</em></p>
+    </div>
+  </div>
+</section>
 
-      <div class="grid-2" style="margin-bottom:24px">
-        <div class="card">
-          <p class="card-title">Weekday vs Weekend — Top 12 Stations</p>
-          <p class="card-desc">Real FY 2024–25 data.</p>
-          <div id="vis-quick-summary" class="loading">Loading...</div>
-        </div>
-        <div class="card">
-          <p class="card-title">Peak Hour Share by Station</p>
-          <p class="card-desc">Proportion of daily entries in AM/PM peak (top 10).</p>
-          <div id="vis-timeband2" class="loading">Loading...</div>
-        </div>
-      </div>
+<!-- ═══ CH 3 — COVID ════════════════════════════════════════════════ -->
+<section id="covid" class="chapter">
+  <div class="chapter-label">Chapter 3 — The COVID Cliff</div>
+  <h2 class="chapter-title">When the Trains<br><em>Ran Empty</em></h2>
+  <p class="chapter-intro">In March 2020, Australia locked down. Rail patronage collapsed overnight. Sydney lost <strong>39% of its riders</strong> in 2019–20, then another <strong>37%</strong> in 2020–21. Melbourne fell even harder. The trains kept running — but almost no one was on board.</p>
+  <p class="chapter-body">The monthly heatmap reveals the full story. The abrupt collapse in March–April 2020 is unmistakable. Notice also the regular seasonal dips every January and July — school holidays — and how that rhythm gradually returned as the city came back to life.</p>
+  <div class="big-quote reveal">
+    <span class="quote-mark">"</span>
+    <span class="quote-text">By 2022–23, patronage had <em>not returned</em> to 2017–18 levels in Sydney or Melbourne — the two cities hardest hit by prolonged lockdowns.</span>
+    <span class="quote-source">— BITRE Trainline 12, 2025</span>
+  </div>
+  <div class="viz-container viz-wide reveal">
+    <h3 class="viz-title">Heatmap 1 — Sydney Trains monthly boardings 2018–2024</h3>
+    <div id="viz-heatmap-monthly"></div>
+    <p class="viz-caption">Each cell = one month. Amber/yellow = high patronage; dark blue = near zero. The COVID collapse (Mar–Apr 2020) and Delta lockdown (Aug–Sep 2021) stand out as cold bands. School holiday dips recur in January and July every year.<br><em>Source: Transport for NSW Opal data (aggregate); BITRE Trainline 12.</em></p>
+  </div>
+  <div class="viz-container viz-wide reveal">
+    <h3 class="viz-title">Heatmap 2 — Recovery index by city, 2009–10 to 2022–23 (2017–18 = 100)</h3>
+    <div id="viz-covid-heatmap"></div>
+    <p class="viz-caption">Each cell shows patronage as a percentage of the 2017–18 pre-COVID peak. Red = well below baseline; green = recovered or surpassed. Perth's resilience is clear — it dropped less and recovered faster.<br><em>Source: BITRE Trainline 12, 2025.</em></p>
+  </div>
+</section>
 
-      <div class="card">
-        <p class="card-title">Stacked Patronage — Weekday / Saturday / Sunday (Top 15)</p>
-        <p class="card-desc">Absolute volume split by day type.</p>
-        <div id="vis-stacked" class="loading">Loading...</div>
+<!-- ═══ CH 4 — RELIABILITY ══════════════════════════════════════════ -->
+<section id="reliability" class="chapter chapter-alt">
+  <div class="chapter-label">Chapter 4 — Reliability</div>
+  <h2 class="chapter-title">On Time, or Off Track?</h2>
+  <p class="chapter-intro">Every delayed train is a missed meeting, a late school pickup, a lost hour. Australians expect their trains to run on time — but performance varies dramatically across operators and years.</p>
+  <p class="chapter-body">The heatmap maps each operator's on-time performance across five years. Deep red means chronic underperformance; teal means reliability. Regional services — V/Line and NSW TrainLink — consistently sit in the red. The lollipop chart lets you explore year by year: the white ring is the published target, and colour shows whether it was met.</p>
+  <div class="viz-row">
+    <div class="viz-container viz-main reveal">
+      <h3 class="viz-title">Heatmap 3 — On-time performance: operator × year</h3>
+      <div id="viz-otp-heatmap"></div>
+      <p class="viz-caption">Each cell = OTP%. Red = below target; teal = at or above. Annotated with actual percentage. COVID years (2020–21) show inflated scores — fewer services ran, so fewer were late.<br><em>Sources: NSW Transport Annual Report; VIC DoT; Queensland Rail; Transperth; DPTI SA — 2019 to 2024.</em></p>
+    </div>
+    <div class="viz-container viz-side reveal">
+      <h3 class="viz-title">Lollipop — OTP vs target by operator</h3>
+      <div id="viz-lollipop"></div>
+      <p class="viz-caption">Coloured dot = actual OTP. White ring = published target. Use the dropdown to change year. Green = met target; red = missed.<br><em>Sources: State government annual reports.</em></p>
+    </div>
+  </div>
+  <div class="viz-container viz-wide reveal">
+    <h3 class="viz-title">Map 3 — On-time performance by operator location (2023–24)</h3>
+    <div id="viz-otp-map"></div>
+    <p class="viz-caption">Circle size = OTP percentage. Green = at or above target; red = below target. Regional operators (NSW TrainLink and V/Line, shown offset from their metro counterparts) consistently underperform urban services. Annotated with OTP score.<br><em>Sources: State government annual reports 2023–24.</em></p>
+  </div>
+</section>
+
+<!-- ═══ CH 5 — FREIGHT ══════════════════════════════════════════════ -->
+<section id="freight" class="chapter">
+  <div class="chapter-label">Chapter 5 — Freight</div>
+  <h2 class="chapter-title">The Invisible Railway</h2>
+  <p class="chapter-intro">While passenger trains command the headlines, Australia's freight railways are among the busiest on Earth. The Pilbara heavy-haul lines run trains over 2.5 km long, 24 hours a day, seven days a week — mostly invisible to the Australian public.</p>
+  <p class="chapter-body">The two Nightingale roses below break down freight exports by port for coal and iron ore — Australia's two largest rail freight commodities. Each petal's outward reach encodes the volume. Port Hedland, handling over half a billion tonnes of iron ore every year, dwarfs every other port in the country.</p>
+  <div class="viz-row">
+    <div class="viz-container viz-side reveal">
+      <h3 class="viz-title">Nightingale — Iron ore exports by port (2022, Mt)</h3>
+      <div id="viz-nightingale-iron"></div>
+      <p class="viz-caption">Radius encodes export tonnage in millions of tonnes. Port Hedland alone handles 77% of Australia's iron ore exports — all transported there by private heavy-haul rail from the Pilbara mines.<br><em>Source: BITRE Trainline 12, 2025 (Table 22).</em></p>
+    </div>
+    <div class="viz-container viz-side reveal">
+      <h3 class="viz-title">Nightingale — Coal exports by port (2022, Mt)</h3>
+      <div id="viz-nightingale-coal"></div>
+      <p class="viz-caption">Radius encodes export tonnage in millions of tonnes. Newcastle dominates Queensland and NSW coal exports, served by the Hunter Valley coal network and ARTC's interstate corridor.<br><em>Source: BITRE Trainline 12, 2025 (Table 23).</em></p>
+    </div>
+  </div>
+  <div class="callout-grid two-cols">
+    <div class="callout reveal"><div class="callout-value">721 Mt</div><div class="callout-label">iron ore exported by rail in 2022</div><div class="callout-desc">Port Hedland alone handles 558.6 Mt — all transported from the Pilbara by BHP and Rio Tinto private heavy-haul lines.</div></div>
+    <div class="callout reveal"><div class="callout-value">327 Mt</div><div class="callout-label">coal exported by rail in 2022</div><div class="callout-desc">Down from 391 Mt in 2018 as thermal coal demand softens — though metallurgical coal from Queensland remains strong.</div></div>
+  </div>
+</section>
+
+<!-- ═══ CH 6 — GAUGE WARS ════════════════════════════════════════════ -->
+<section id="gauges" class="chapter chapter-alt">
+  <div class="chapter-label">Chapter 6 — The Gauge Wars</div>
+  <h2 class="chapter-title">A Nation Divided<br><em>by Millimetres</em></h2>
+  <p class="chapter-intro">In 1854, Victoria opened Australia's first steam railway on <strong>broad gauge (1,600 mm)</strong> track. Five years later, NSW opened on <strong>standard gauge (1,435 mm)</strong>. Queensland chose <strong>narrow gauge (1,067 mm)</strong> for cheaper construction. Three colonies. Three gauges. A century of broken journeys.</p>
+  <p class="chapter-body">The waffle chart makes the proportions visceral: each square represents roughly 1% of Australia's total rail network. More than half the country's rail kilometres are narrow gauge. Standard gauge carries nearly all interstate traffic. Broad gauge is almost entirely Victoria.</p>
+  <div class="viz-row">
+    <div class="viz-container viz-side reveal">
+      <h3 class="viz-title">Waffle — Network km by gauge (each cell ≈ 1%)</h3>
+      <div id="viz-waffle"></div>
+      <p class="viz-caption">100 cells = 100% of Australia's ~27,840 km rail network. Narrow gauge (red, 55 cells), standard gauge (amber, 29 cells), broad gauge (blue, 16 cells).<br><em>Source: BITRE Trainline 12, 2025.</em></p>
+    </div>
+    <div class="viz-container viz-main reveal">
+      <div class="gauge-timeline">
+        <h3 class="viz-title" style="margin-bottom:1.2rem">The long road to gauge unification</h3>
+        <div class="timeline-item reveal"><div class="tl-year">1854</div><div class="tl-body">Victoria opens first railway on <strong>broad gauge</strong>, 1,600 mm.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">1855</div><div class="tl-body">NSW switches to <strong>standard gauge</strong> — incompatible with Victoria from the start.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">1865</div><div class="tl-body">Queensland adopts <strong>narrow gauge</strong> (1,067 mm) to cut construction costs.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">1917</div><div class="tl-body">Trans-Australian railway opens, linking Perth to the east on standard gauge.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">1962</div><div class="tl-body">Sydney–Melbourne converted to standard gauge — first direct service in 107 years.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">1995</div><div class="tl-body">Melbourne–Adelaide converted: the interstate standard-gauge spine is finally complete.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">Today</div><div class="tl-body">Queensland's break-of-gauge at the NSW border remains. Direct Sydney–Brisbane rail is still not possible.</div></div>
       </div>
     </div>
-  </section>
+  </div>
+</section>
 
-  <section class="section">
-    <div class="wrap">
-      <span class="sec-label">Section 03 — Network Character</span>
-      <h2 style="margin-bottom:10px">Rush Hour Rhythms</h2>
+<!-- ═══ CH 7 — INVESTMENT ════════════════════════════════════════════ -->
+<section id="investment" class="chapter">
+  <div class="chapter-label">Chapter 7 — Building the Future</div>
+  <h2 class="chapter-title">The Billion-Dollar<br>Building Boom</h2>
+  <p class="chapter-intro">Australia is in the midst of its largest rail construction program in history. ABS data shows railway engineering construction reached <strong>AU$17 billion</strong> in 2023–24 — a historic high, and more than triple the 2015 figure of $5.2 billion.</p>
+  <p class="chapter-body">The dumbbell chart strips away year-by-year noise to show total railway infrastructure spend from 1996 to 2024. The bump in the mid-2000s reflects the mining boom. The steep climb after 2015 reflects the urban megaprojects: Sydney Metro, METRONET, and Melbourne Airport Rail.</p>
+  <div class="viz-container viz-wide reveal">
+    <h3 class="viz-title">Dumbbell — Railway engineering construction: 1996 vs 2024 (AU$ billion)</h3>
+    <div id="viz-dumbbell"></div>
+    <p class="viz-caption">Each dot = one year's total railway engineering construction work done (AU$ million, nominal). The dumbbell highlights the start (1996) and end (2024) anchors. Railway investment in 2024 is 4.7× the 1996 level in nominal terms.<br><em>Source: ABS Engineering Construction Activity, Australia (cat. no. 8762.0), accessed via BITRE Yearbook 2025.</em></p>
+  </div>
+  <div class="callout-grid three-cols">
+    <div class="callout reveal"><div class="callout-value">AU$33B</div><div class="callout-label">Sydney Metro (stages 1–3)</div><div class="callout-desc">Australia's largest infrastructure project — 66 km of new track connecting North West to South West Sydney.</div></div>
+    <div class="callout reveal"><div class="callout-value">AU$9B+</div><div class="callout-label">Perth METRONET</div><div class="callout-desc">New lines to Yanchep, Ellenbrook, and the Airport — driving Perth's patronage recovery past pre-COVID levels.</div></div>
+    <div class="callout reveal"><div class="callout-value">AU$7.1B</div><div class="callout-label">Melbourne Airport Rail</div><div class="callout-desc">Long-awaited link under construction — the last major Australian capital without rail to its airport.</div></div>
+  </div>
+</section>
 
-      <div class="card" style="margin-bottom:24px">
-        <p class="card-title">Patronage Distribution Across All Stations</p>
-        <p class="card-desc">Most stations are small. A few CBD stations dominate.</p>
-        <div id="vis-histogram" class="loading">Loading...</div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <p class="card-title">Saturday vs Sunday Demand</p>
-          <p class="card-desc">Weekend patterns differ by corridor.</p>
-          <div id="vis-sat-sun" class="loading">Loading...</div>
-        </div>
-        <div class="card">
-          <p class="card-title">School Holiday vs Normal Weekday</p>
-          <p class="card-desc">Impact of school terms on demand.</p>
-          <div id="vis-school-hol" class="loading">Loading...</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section section--dark">
-    <div class="wrap">
-      <span class="sec-label sec-label--light">Section 04 — Reliability</span>
-      <h2 style="color:var(--white); margin-bottom:10px">The Reliability Report Card</h2>
-
-      <div class="grid-2" style="margin-bottom:24px">
-        <div class="card card--dark">
-          <p class="card-title card-title--light">On-Time Performance by Line</p>
-          <p class="card-desc card-desc--light">% services within 5 min of schedule. Dashed line = 92% target.</p>
-          <div id="vis-performance" class="loading">Loading...</div>
-        </div>
-        <div class="card card--dark">
-          <p class="card-title card-title--light">Patronage vs On-Time Performance</p>
-          <p class="card-desc card-desc--light">Busier lines vs reliability.</p>
-          <div id="vis-scatter" class="loading">Loading...</div>
-        </div>
-      </div>
-
-      <div class="card card--dark">
-        <p class="card-title card-title--light">Metro Train On-Time Running — 2019 to 2025</p>
-        <div id="vis-trend" class="loading">Loading...</div>
-      </div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="wrap">
-      <span class="sec-label">Section 05 — Future Planning</span>
-      <h2 style="margin-bottom:10px">Building Tomorrow's Network</h2>
-
-      <div class="card" style="margin-bottom:24px">
-        <p class="card-title">Major Projects — Timeline & Relative Budget</p>
-        <div id="vis-timeline" class="loading">Loading...</div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <p class="card-title">Budget Allocation by Project Type</p>
-          <div id="vis-budget" class="loading">Loading...</div>
-        </div>
-        <div class="card">
-          <p class="card-title">Projected Patronage Growth to 2050</p>
-          <div id="vis-growth" class="loading">Loading...</div>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>
-
-<footer>
-  <div class="wrap">
-    <p>
-      Author: Senuka V. Abeysuriya <br>
-    </p>
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-author">FIT2179 Data Visualisation 2 · Monash University, Clayton · Semester 1, 2026</p>
+    <p class="footer-sources-heading">Data sources</p>
+    <ul class="footer-sources">
+      <li><strong>BITRE Trainline 12 (2025)</strong> — Patronage by city (2009–10 to 2022–23), network km by gauge, freight exports by port. <a href="https://www.bitre.gov.au/publications/2025/trainline-12" target="_blank">bitre.gov.au/publications/2025/trainline-12</a></li>
+      <li><strong>ABS Engineering Construction Activity, Australia (cat. no. 8762.0)</strong> — Annual railway construction work done 1996–2024. Freely downloadable, no registration required. <a href="https://www.abs.gov.au/statistics/industry/building-and-construction/engineering-construction-activity-australia/latest-release" target="_blank">abs.gov.au/statistics/…/engineering-construction-activity-australia</a></li>
+      <li><strong>Geoscience Australia Foundation Rail Infrastructure Dataset</strong> — Spatial rail line data used in the network map. <a href="https://digital.atlas.gov.au/datasets/9dd0b398e56d4306b03b89050433febf_0/about" target="_blank">digital.atlas.gov.au (Railway Lines)</a></li>
+      <li><strong>State government annual reports 2019–2024</strong> — On-time performance figures: NSW Transport; VIC Department of Transport; Queensland Rail; Transperth; DPTI SA.</li>
+    </ul>
+    <p class="footer-ai">AI tools (Claude) used for code generation and writing assistance. All data sourced from publicly available Australian government publications. Visualisation authored 2026.</p>
   </div>
 </footer>
 
 <script>
-// ── Colour scale: map annual patronage → colour ──────────────────────────────
-function patronageColour(annual) {
-  if (annual >= 10_000_000) return '#ffd000'; // gold  — mega stations
-  if (annual >= 4_000_000)  return '#0099e6'; // bright blue
-  if (annual >= 1_500_000)  return '#0057a0'; // mid blue
-  if (annual >= 500_000)    return '#00843d'; // green
-  return '#5a6a7a';                           // grey  — quiet stations
-}
+// ═══ Shared config ════════════════════════════════════════════════════
+const CITY_COLORS = {
+  domain:["Sydney","Melbourne","Brisbane","Perth","Adelaide"],
+  range: ["#f0a500","#4a9fd4","#7bd4a0","#e05252","#c47adb"]
+};
+const AXIS = {
+  gridColor:"#1e2a3a", domainColor:"#2d4057", tickColor:"#2d4057",
+  labelColor:"#8899aa", titleColor:"#8899aa",
+  labelFont:"Libre Franklin, sans-serif", titleFont:"Libre Franklin, sans-serif",
+  labelFontSize:11
+};
+const LEG = {
+  labelColor:"#ccd", titleColor:"#aab",
+  fillColor:"transparent", strokeColor:"transparent",
+  labelFont:"Libre Franklin, sans-serif", labelFontSize:12
+};
+const TOPO_AU = {
+  url:"https://cdn.jsdelivr.net/npm/vega-datasets@2.2.0/data/world-110m.json",
+  format:{type:"topojson", feature:"countries"}
+};
+const MAP_PROJ = {type:"mercator", center:[134,-28], scale:680};
 
-// ── Radius scale (sqrt of annual patronage, clamped) ────────────────────────
-function patronageRadius(annual) {
-  return Math.max(4, Math.min(28, Math.sqrt(annual / 8000)));
-}
-
-// ── Format helpers ───────────────────────────────────────────────────────────
-function fmt(n) { return Number(n).toLocaleString('en-AU'); }
-
-// ── Build the Leaflet map ────────────────────────────────────────────────────
-function buildLeafletMap(rows) {
-  const map = L.map('vis-map', {
-    center: [-37.82, 144.97],
-    zoom: 11,
-    zoomControl: true,
-    attributionControl: true,
-  });
-
-  // OpenStreetMap tiles — CSS filter applied via .leaflet-tile-pane
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 18,
-  }).addTo(map);
-
-  // Plot each station
-  rows.forEach(row => {
-    const lat  = parseFloat(row.Stop_lat);
-    const lng  = parseFloat(row.Stop_long);
-    const ann  = parseFloat(row.Pax_annual)  || 0;
-    const wday = parseFloat(row.Pax_weekday) || 0;
-    const sat  = parseFloat(row.Pax_Saturday)|| 0;
-    const sun  = parseFloat(row.Pax_Sunday)  || 0;
-
-    if (!lat || !lng) return;
-
-    const circle = L.circleMarker([lat, lng], {
-      radius:      patronageRadius(ann),
-      fillColor:   patronageColour(ann),
-      color:       'rgba(255,255,255,0.25)',
-      weight:      1,
-      fillOpacity: 0.85,
-    }).addTo(map);
-
-    circle.bindPopup(`
-      <div class="popup-name">${row.Stop_name}</div>
-      <div class="popup-row"><span>Annual entries</span><span class="popup-val">${fmt(ann)}</span></div>
-      <div class="popup-row"><span>Avg weekday</span><span class="popup-val">${fmt(wday)}</span></div>
-      <div class="popup-row"><span>Avg Saturday</span><span class="popup-val">${fmt(sat)}</span></div>
-      <div class="popup-row"><span>Avg Sunday</span><span class="popup-val">${fmt(sun)}</span></div>
-    `, { maxWidth: 260 });
-
-    // Subtle hover highlight
-    circle.on('mouseover', () => circle.setStyle({ weight: 2, color: '#ffd000' }));
-    circle.on('mouseout',  () => circle.setStyle({ weight: 1, color: 'rgba(255,255,255,0.25)' }));
-  });
-
-  // Legend
-  const legend = L.control({ position: 'bottomright' });
-  legend.onAdd = () => {
-    const div = L.DomUtil.create('div', 'map-legend');
-    div.innerHTML = `
-      <strong>Annual Entries</strong>
-      <div class="legend-row"><div class="legend-dot" style="width:20px;height:20px;background:#ffd000"></div> 10 M +</div>
-      <div class="legend-row"><div class="legend-dot" style="width:16px;height:16px;background:#0099e6"></div> 4 – 10 M</div>
-      <div class="legend-row"><div class="legend-dot" style="width:13px;height:13px;background:#0057a0"></div> 1.5 – 4 M</div>
-      <div class="legend-row"><div class="legend-dot" style="width:10px;height:10px;background:#00843d"></div> 500 K – 1.5 M</div>
-      <div class="legend-row"><div class="legend-dot" style="width:7px;height:7px;background:#5a6a7a"></div>  &lt; 500 K</div>
-    `;
-    return div;
-  };
-  legend.addTo(map);
-}
-
-// ── Main init ────────────────────────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', async () => {
-  const DATA_URL     = "data/station_entries.csv";
-  const PERF_URL     = "data/line_performance.csv";
-  const TREND_URL    = "data/punctuality_trend.csv";
-  const PROJECTS_URL = "data/major_projects.json";
-  const GROWTH_URL   = "data/patronage_growth.csv";
-
-  const CFG = {
-    font: "Barlow, sans-serif",
-    view: { stroke: null },
-    axis: { labelFont:"Barlow,sans-serif", titleFont:"Barlow,sans-serif", gridColor:"#e8eaed", domainColor:"#ccc", tickColor:"#ccc" },
-    legend: { labelFont:"Barlow,sans-serif", titleFont:"Barlow,sans-serif" },
-    title: { font:"Barlow Condensed,sans-serif", fontWeight:700 }
-  };
-
-  const OPT = { actions: false, renderer: "svg" };
-
-  const PROJECT_SCALE = {
-    domain: ["Suburban Rail Loop", "Level Crossings", "Metro Tunnel", "Other"],
-    range: ["#0057a0", "#00843d", "#ffd000", "#5a6a7a"]
-  };
-
-  // ── Load CSV for Leaflet map via PapaParse ──
-  Papa.parse(DATA_URL, {
-    download: true,
-    header: true,
-    skipEmptyLines: true,
-    complete: ({ data }) => buildLeafletMap(data),
-    error: (err) => {
-      console.warn('Could not load station CSV for map:', err);
-      document.getElementById('vis-map').innerHTML =
-        '<p style="padding:60px;text-align:center;color:#5a6a7a">Map data unavailable — place station_entries.csv in data/</p>';
+// ═══ MAP 1 — Network geoshape ════════════════════════════════════════
+const specNetworkMap = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:520,
+  config:{background:"#0d1117", view:{stroke:null}},
+  projection:{type:"mercator", center:[134,-28], scale:720},
+  layer:[
+    { data:{...TOPO_AU}, transform:[{filter:"datum.id === 36"}],
+      mark:{type:"geoshape", fill:"#1a2332", stroke:"#2d4057", strokeWidth:1} },
+    { data:{url:"data/rail_lines.geojson"},
+      mark:{type:"geoshape", filled:false, strokeCap:"round", strokeJoin:"round", opacity:0.92},
+      encoding:{
+        color:{field:"properties.gauge", type:"nominal", title:"Track gauge",
+          scale:{domain:["Standard gauge","Broad gauge","Narrow gauge","Private heavy haul"],
+                 range:["#f0a500","#4a9fd4","#e05252","#7bd4a0"]},
+          legend:{orient:"bottom-left",...LEG, title:"Track gauge",
+                  titleFont:"Courier Prime, monospace", labelFont:"Courier Prime, monospace",
+                  symbolStrokeWidth:3, padding:8, fillColor:"#0d1117", strokeColor:"#2d4057"}},
+        strokeWidth:{
+          condition:[{test:"datum.properties.type==='interstate'",value:3},
+                     {test:"datum.properties.type==='private heavy haul'",value:2.5}],
+          value:1.8},
+        tooltip:[{field:"properties.name",title:"Line"},
+                 {field:"properties.gauge",title:"Gauge"},
+                 {field:"properties.operator",title:"Operator"},
+                 {field:"properties.length_km",title:"Length (km)",format:",.0f"}]
+      }
     }
-  });
+  ]
+};
 
-  // ── Load projects JSON ──
-  let projectsData;
-  try {
-    projectsData = await fetch(PROJECTS_URL).then(r => r.json());
-  } catch (e) {
-    console.warn("Projects data not loaded");
+// ═══ MAP 2 — Bubble map patronage ════════════════════════════════════
+const CITY_LOCS = [
+  {city:"Sydney",   lon:151.21,lat:-33.87,passengers_m:325.3,pop_m:5.4},
+  {city:"Melbourne",lon:144.96,lat:-37.81,passengers_m:182.5,pop_m:5.2},
+  {city:"Brisbane", lon:153.02,lat:-27.47,passengers_m:47.25,pop_m:2.7},
+  {city:"Perth",    lon:115.86,lat:-31.95,passengers_m:59.7, pop_m:2.2},
+  {city:"Adelaide", lon:138.60,lat:-34.93,passengers_m:12.3, pop_m:1.4},
+];
+const specBubbleMap = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:360,
+  config:{background:"#0d1117", view:{stroke:null}},
+  projection:{type:"mercator", center:[134,-28], scale:600},
+  layer:[
+    { data:{...TOPO_AU}, transform:[{filter:"datum.id===36"}],
+      mark:{type:"geoshape", fill:"#1a2332", stroke:"#2d4057", strokeWidth:0.8} },
+    { data:{values:CITY_LOCS},
+      layer:[
+        { mark:{type:"circle",opacity:0.15,stroke:null},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            size:{field:"passengers_m",type:"quantitative",scale:{range:[2000,55000]},legend:null},
+            color:{field:"city",type:"nominal",scale:CITY_COLORS,legend:null}} },
+        { mark:{type:"circle",opacity:0.88,stroke:"#0d1117",strokeWidth:1.5},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            size:{field:"passengers_m",type:"quantitative",title:"Boardings (M)",
+                  scale:{range:[600,16000]},
+                  legend:{orient:"bottom-right",values:[12,47,60,182,325],
+                          labelColor:"#aab",titleColor:"#aab",
+                          labelFont:"Libre Franklin, sans-serif",titleFont:"Libre Franklin, sans-serif",
+                          labelFontSize:10,titleFontSize:11,fillColor:"#0d1117",strokeColor:"#2d4057",
+                          symbolFillColor:"#aab",symbolOpacity:0.5}},
+            color:{field:"city",type:"nominal",scale:CITY_COLORS,
+                   legend:{orient:"top-right",...LEG,title:"City",fillColor:"#0d1117",strokeColor:"#2d4057"}},
+            tooltip:[{field:"city",title:"City"},
+                     {field:"passengers_m",title:"Boardings 2022–23 (M)",format:".1f"},
+                     {field:"pop_m",title:"Population (M)",format:".1f"}]} },
+        { mark:{type:"text",fontSize:11,fontWeight:"600",dy:-18,font:"Libre Franklin, sans-serif",color:"#eee"},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            text:{field:"city",type:"nominal"}} }
+      ]
+    }
+  ]
+};
+
+// ═══ MAP 3 — OTP map ═════════════════════════════════════════════════
+const OTP_MAP_DATA = [
+  {city:"Sydney Trains",    lon:151.21,lat:-33.87,otp:93.8,target:92.0,gap:1.8},
+  {city:"Metro Melb.",      lon:144.96,lat:-37.81,otp:88.5,target:92.0,gap:-3.5},
+  {city:"Qld Rail",         lon:153.02,lat:-27.47,otp:92.1,target:92.0,gap:0.1},
+  {city:"Transperth",       lon:115.86,lat:-31.95,otp:95.2,target:95.0,gap:0.2},
+  {city:"Adelaide Metro",   lon:138.60,lat:-34.93,otp:94.5,target:94.0,gap:0.5},
+  {city:"NSW TrainLink",    lon:151.7, lat:-32.5, otp:81.6,target:85.0,gap:-3.4},
+  {city:"V/Line",           lon:145.4, lat:-38.5, otp:83.1,target:85.0,gap:-1.9},
+];
+const specOtpMap = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:460,
+  config:{background:"#0d1117", view:{stroke:null}},
+  projection:{type:"mercator", center:[134,-28], scale:640},
+  layer:[
+    { data:{...TOPO_AU}, transform:[{filter:"datum.id===36"}],
+      mark:{type:"geoshape", fill:"#1a2332", stroke:"#2d4057", strokeWidth:0.8} },
+    { data:{values:OTP_MAP_DATA},
+      layer:[
+        { mark:{type:"circle",opacity:0.15,stroke:null},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            size:{field:"otp",type:"quantitative",scale:{range:[3000,28000]},legend:null},
+            color:{condition:{test:"datum.gap>=0",value:"#7bd4a0"},value:"#e05252"}} },
+        { mark:{type:"circle",opacity:0.9,stroke:"#0d1117",strokeWidth:2},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            size:{field:"otp",type:"quantitative",title:"On-time %",scale:{range:[900,7000]},
+                  legend:{orient:"bottom-right",values:[82,88,93,95],
+                          labelColor:"#aab",titleColor:"#aab",
+                          labelFont:"Libre Franklin, sans-serif",titleFont:"Libre Franklin, sans-serif",
+                          labelFontSize:10,titleFontSize:11,fillColor:"#0d1117",strokeColor:"#2d4057",
+                          symbolFillColor:"#aab",symbolOpacity:0.5}},
+            color:{condition:{test:"datum.gap>=0",value:"#7bd4a0"},value:"#e05252"},
+            tooltip:[{field:"city",title:"Operator"},{field:"otp",title:"On-time %",format:".1f"},
+                     {field:"target",title:"Target %",format:".1f"},{field:"gap",title:"Gap (pp)",format:"+.1f"}]} },
+        { mark:{type:"text",fontSize:11,fontWeight:"700",dy:-20,font:"Courier Prime, monospace",color:"#ccd"},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            text:{field:"otp",type:"quantitative",format:".1f"}} },
+        { mark:{type:"text",fontSize:9,dy:-8,font:"Libre Franklin, sans-serif",color:"#8899aa"},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            text:{field:"city",type:"nominal"}} }
+      ]
+    }
+  ]
+};
+
+// ═══ HEATMAP 1 — Monthly patronage ═══════════════════════════════════
+const specHeatmapMonthly = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:200,
+  config:{background:"transparent", view:{stroke:null},
+          axis:{labelColor:"#8899aa",titleColor:"#8899aa",domainColor:"transparent",
+                tickColor:"transparent",labelFont:"Libre Franklin, sans-serif",labelFontSize:11}},
+  data:{url:"data/monthly_patronage.json"},
+  mark:{type:"rect", cornerRadius:2, binSpacing:2},
+  encoding:{
+    x:{field:"month",type:"ordinal",
+       sort:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+       axis:{title:null,labelAngle:0}},
+    y:{field:"year",type:"ordinal",sort:"descending",axis:{title:null}},
+    color:{field:"patronage_m",type:"quantitative",title:"Boardings (M)",
+           scale:{range:["#0a0e1a","#1a2a4a","#1e5a8c","#2e8bc0","#f0a500","#ffcc55"]},
+           legend:{orient:"right",labelColor:"#aab",titleColor:"#aab",
+                   labelFont:"Courier Prime, monospace",titleFont:"Libre Franklin, sans-serif",
+                   titleFontSize:11,labelFontSize:10,gradientLength:130}},
+    tooltip:[{field:"year",title:"Year"},{field:"month",title:"Month"},
+             {field:"patronage_m",title:"Boardings (M)",format:".1f"}]
   }
+};
 
-  // ==================== HERO ====================
-  vegaEmbed("#hero-viz", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:300,
-    data:{ url: DATA_URL },
-    transform:[{ filter:"datum.Pax_annual > 500000" }, { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_annual",order:"descending"}] }, { filter:"datum.rank <= 10" }],
-    mark:{ type:"circle", opacity:0.85 },
-    encoding:{
-      x:{ field:"Pax_weekday", type:"quantitative", axis:{ title:"Avg Weekday Entries", format:"," }},
-      y:{ field:"Pax_Saturday", type:"quantitative", axis:{ title:"Avg Saturday Entries", format:"," }},
-      size:{ field:"Pax_annual", type:"quantitative", scale:{range:[180,2200]}, legend:null },
-      color:{ value:"#ffd000" },
-      tooltip:[{field:"Stop_name", title:"Station"},{field:"Pax_annual", title:"Annual Entries", format:","},{field:"Pax_weekday", title:"Weekday Avg", format:","},{field:"Pax_Saturday", title:"Sat Avg", format:","}]
-    },
-    config:{ ...CFG, background:"transparent" }
-  }, OPT);
-
-  // ==================== TOP 15 STATIONS ====================
-  vegaEmbed("#vis-top-stations", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:400,
-    data:{ url: DATA_URL },
-    transform:[{ window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] }, { filter:"datum.rank <= 15" }],
-    mark:{ type:"bar", cornerRadiusEnd:3 },
-    encoding:{
-      y:{ field:"Stop_name", type:"nominal", sort:"-x", axis:{ title:null }},
-      x:{ field:"Pax_weekday", type:"quantitative", axis:{ title:"Avg Weekday Entries", format:"," }},
-      color:{ field:"Pax_weekday", type:"quantitative", scale:{ scheme:"blues" }, legend:null },
-      tooltip:[{field:"Stop_name", title:"Station"}, {field:"Pax_weekday", title:"Weekday Entries", format:","}]
-    },
-    config: CFG
-  }, OPT);
-
-  // ==================== TIME BAND ====================
-  vegaEmbed("#vis-timeband", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:360,
-    data:{ url: DATA_URL },
-    transform:[
-      { fold:["Pax_pre_AM_peak","Pax_AM_peak","Pax_interpeak","Pax_PM_peak","Pax_PM_late"], as:["band","entries"] },
-      { aggregate:[{op:"sum",field:"entries",as:"total"}], groupby:["band"] },
-      { calculate:"({'Pax_pre_AM_peak':'Pre-AM Peak','Pax_AM_peak':'AM Peak','Pax_interpeak':'Interpeak','Pax_PM_peak':'PM Peak','Pax_PM_late':'Evening'})[datum.band]", as:"label" }
-    ],
-    mark:{ type:"bar", cornerRadiusEnd:3 },
-    encoding:{
-      x:{ field:"label", type:"ordinal", sort:["Pre-AM Peak","AM Peak","Interpeak","PM Peak","Evening"], axis:{ title:"Time Band", labelAngle:0 } },
-      y:{ field:"total", type:"quantitative", axis:{ title:"Total Network Entries", format:".2s" }},
-      color:{ value:"#0057a0" },
-      tooltip:[{field:"label", title:"Time Horizon"}, {field:"total", title:"Combined Boardings", format:","}]
-    },
-    config: CFG
-  }, OPT);
-
-  // ==================== WEEKDAY VS WEEKEND ====================
-  vegaEmbed("#vis-quick-summary", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:400,
-    data:{ url: DATA_URL },
-    transform:[
-      { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
-      { filter:"datum.rank <= 12" },
-      { fold:["Pax_weekday","Pax_Saturday","Pax_Sunday"], as:["dtype","val"] },
-      { calculate:"({'Pax_weekday':'Weekday','Pax_Saturday':'Saturday','Pax_Sunday':'Sunday'})[datum.dtype]", as:"Day" }
-    ],
-    mark:"bar",
-    encoding:{
-      y:{ field:"Stop_name", type:"nominal", sort:"-x", axis:{ title:null } },
-      x:{ field:"val", type:"quantitative", axis:{ title:"Average Shared Ridership", format:"," } },
-      color:{ field:"Day", type:"nominal", scale:{ range:["#0057a0","#00843d","#ffd000"] }, legend:{ title:"Travel Interval" }},
-      xOffset:{ field:"Day" },
-      tooltip:[{field:"Stop_name", title:"Station"}, {field:"Day"}, {field:"val", title:"Average Entries", format:","}]
-    },
-    config: CFG
-  }, OPT);
-
-  // ==================== PEAK HOUR SHARE ====================
-  vegaEmbed("#vis-timeband2", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:400,
-    data:{ url: DATA_URL },
-    transform:[
-      { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
-      { filter:"datum.rank <= 10" },
-      { fold:["Pax_pre_AM_peak","Pax_AM_peak","Pax_interpeak","Pax_PM_peak","Pax_PM_late"], as:["band","val"] },
-      { calculate:"({'Pax_pre_AM_peak':'Pre-AM','Pax_AM_peak':'AM Peak','Pax_interpeak':'Interpeak','Pax_PM_peak':'PM Peak','Pax_PM_late':'Evening'})[datum.band]", as:"Band" }
-    ],
-    mark:"bar",
-    encoding:{
-      x:{ field:"Stop_name", type:"nominal", sort:{ field:"Pax_weekday", order:"descending" }, axis:{ labelAngle:-35, title:null }},
-      y:{ field:"val", type:"quantitative", stack:"normalize", axis:{ format:"%", title:"Proportional Band Allocation" }},
-      color:{ field:"Band", type:"nominal", legend:{ orient:"top", columns:5 }},
-      tooltip:[{field:"Stop_name", title:"Station"}, {field:"Band"}, {field:"val", title:"Entries", format:","}]
-    },
-    config: CFG
-  }, OPT);
-
-  // ==================== STACKED ====================
-  vegaEmbed("#vis-stacked", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:320,
-    data:{ url: DATA_URL },
-    transform:[
-      { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
-      { filter:"datum.rank <= 15" },
-      { fold:["Pax_norm_weekday","Pax_Saturday","Pax_Sunday"], as:["dtype","val"] },
-      { calculate:"({'Pax_norm_weekday':'Weekday','Pax_Saturday':'Saturday','Pax_Sunday':'Sunday'})[datum.dtype]", as:"DayType" }
-    ],
-    mark:"bar",
-    encoding:{
-      x:{ field:"Stop_name", type:"nominal", sort:{ field:"Pax_weekday", order:"descending" }, axis:{ labelAngle:-40, title:null }},
-      y:{ field:"val", type:"quantitative", axis:{ title:"Accumulated Weekly Traffic Volumes", format:".2s" }},
-      color:{ field:"DayType", type:"nominal", scale:{ range:["#0057a0","#00843d","#ffd000"] }, legend:{ title:"Day Profile" }},
-      tooltip:[{field:"Stop_name", title:"Station"}, {field:"DayType", title:"Profile"}, {field:"val", title:"Entries", format:","}]
-    },
-    config: CFG
-  }, OPT);
-
-  // ==================== HISTOGRAM ====================
-  vegaEmbed("#vis-histogram", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:300,
-    data:{ url: DATA_URL },
-    mark:{ type:"bar", color:"#0057a0" },
-    encoding:{
-      x:{ field:"Pax_annual", type:"quantitative", bin:{ maxbins:30 }, axis:{ title:"Annual Boarding Volume Tranches", format:".2s" }},
-      y:{ aggregate:"count", type:"quantitative", axis:{ title:"Count of Stations in Bin" } },
-      tooltip:[{aggregate:"count", title:"Station Frequency"}]
-    },
-    config: CFG
-  }, OPT);
-
-  // ==================== SAT VS SUN ====================
-  vegaEmbed("#vis-sat-sun", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:340,
-    data:{ url: DATA_URL },
-    mark:{ type:"point", filled:true, opacity:0.7, size:100 },
-    encoding:{
-      x:{ field:"Pax_Saturday", type:"quantitative", axis:{ title:"Average Saturday Ridership", format:"," } },
-      y:{ field:"Pax_Sunday", type:"quantitative", axis:{ title:"Average Sunday Ridership", format:"," } },
-      color:{ field:"Pax_annual", type:"quantitative", scale:{ scheme:"blues" }, legend:{ title:"Total Scale Base", format:".2s" }},
-      tooltip:[{field:"Stop_name", title:"Station"}, {field:"Pax_Saturday", title:"Sat Avg", format:","}, {field:"Pax_Sunday", title:"Sun Avg", format:","}]
-    },
-    config: CFG
-  }, OPT);
-
-  // ==================== SCHOOL HOLIDAY ====================
-  vegaEmbed("#vis-school-hol", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:340,
-    data:{ url: DATA_URL },
-    transform:[
-      { window:[{op:"rank",as:"rank"}], sort:[{field:"Pax_weekday",order:"descending"}] },
-      { filter:"datum.rank <= 20" },
-      { calculate:"(datum.Pax_sch_hol_weekday - datum.Pax_norm_weekday) / datum.Pax_norm_weekday * 100", as:"pct" }
-    ],
-    mark:{ type:"bar" },
-    encoding:{
-      y:{ field:"Stop_name", type:"nominal", sort:{ field:"pct", order:"ascending" }, axis:{ title:null }},
-      x:{ field:"pct", type:"quantitative", axis:{ title:"Ridership Variance during Holidays (%)", format:".1f" }},
-      color:{ condition:{ test:"datum.pct < 0", value:"#c8102e" }, value:"#00843d" },
-      tooltip:[{field:"Stop_name", title:"Station"}, {field:"pct", title:"Variance Drop-off", format:".2f"}]
-    },
-    config: CFG
-  }, OPT);
-
-  // ==================== PERFORMANCE ====================
-  vegaEmbed("#vis-performance", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:340,
-    layer:[{
-      data:{ url: PERF_URL },
-      mark:{ type:"bar", cornerRadiusEnd:3 },
+// ═══ HEATMAP 2 — COVID recovery index ════════════════════════════════
+const specCovidHeatmap = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:170,
+  config:{background:"transparent", view:{stroke:null},
+          axis:{labelColor:"#8899aa",titleColor:"#8899aa",domainColor:"transparent",
+                tickColor:"transparent",labelFont:"Libre Franklin, sans-serif",labelFontSize:11}},
+  data:{url:"data/covid_recovery.json"},
+  layer:[
+    { mark:{type:"rect",cornerRadius:2,binSpacing:2},
       encoding:{
-        y:{ field:"line", type:"nominal", sort:"-x", axis:{ title:null, labelColor:"#fff" } },
-        x:{ field:"otp", type:"quantitative", scale:{ domain:[85,100] }, axis:{ title:"On-Time Punctuality Index (%)", labelColor:"#fff", titleColor:"#fff" }},
-        color:{ field:"otp", type:"quantitative", scale:{ domain:[87,92,97], range:["#c8102e","#ffd000","#00843d"] }, legend:null },
-        tooltip:[{field:"line", title:"Network Corridor Line"}, {field:"otp", title:"On-Time Index (%)", format:".1f"}]
-      }
-    },{
-      data:{ values:[{x:92}] },
-      mark:{ type:"rule", strokeDash:[4,3], color:"#ffd000", size:1.5 },
-      encoding:{ x:{ field:"x", type:"quantitative" }}
-    }],
-    config:{ ...CFG, background:"transparent" }
-  }, OPT);
-
-  // ==================== SCATTER ====================
-  vegaEmbed("#vis-scatter", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:340,
-    layer:[{
-      data:{ url: PERF_URL },
-      mark:{ type:"point", filled:true, size:150 },
+        x:{field:"year",type:"ordinal",axis:{title:null,labelAngle:-35}},
+        y:{field:"city",type:"nominal",sort:["Sydney","Melbourne","Brisbane","Perth","Adelaide"],
+           axis:{title:null}},
+        color:{field:"index",type:"quantitative",title:"Index (2017-18=100)",
+               scale:{domain:[30,120],range:["#e05252","#e8854a","#f0a500","#aacf6a","#7bd4a0","#4abf8a"]},
+               legend:{orient:"right",labelColor:"#aab",titleColor:"#aab",
+                       labelFont:"Courier Prime, monospace",titleFont:"Libre Franklin, sans-serif",
+                       titleFontSize:11,labelFontSize:10,gradientLength:110}},
+        tooltip:[{field:"city",title:"City"},{field:"year",title:"Year"},
+                 {field:"index",title:"Index (2017-18=100)",format:".0f"}]} },
+    { mark:{type:"text",fontSize:10,fontWeight:"600",font:"Courier Prime, monospace"},
       encoding:{
-        x:{ field:"pat", type:"quantitative", axis:{ title:"Annual Line Ridership Weight (Millions)", labelColor:"#fff", titleColor:"#fff" } },
-        y:{ field:"otp", type:"quantitative", scale:{ domain:[85,100] }, axis:{ title:"On-Time Target Alignment (%)", labelColor:"#fff", titleColor:"#fff" }},
-        color:{ field:"otp", type:"quantitative", scale:{ domain:[87,92,97], range:["#c8102e","#ffd000","#00843d"] }, legend:null },
-        tooltip:[{field:"line", title:"Line Hub"}, {field:"pat", title:"Ridership (M)"}, {field:"otp", title:"Punctuality Score", format:".1f"}]
-      }
-    },{
-      data:{ url: PERF_URL },
-      mark:{ type:"text", dy:-12, fontSize:11, color:"#fff", fontWeight:500 },
-      encoding:{ x:{ field:"pat", type:"quantitative" }, y:{ field:"otp", type:"quantitative" }, text:{ field:"line", type:"nominal" }}
-    }],
-    config:{ ...CFG, background:"transparent" }
-  }, OPT);
+        x:{field:"year",type:"ordinal"},
+        y:{field:"city",type:"nominal",sort:["Sydney","Melbourne","Brisbane","Perth","Adelaide"]},
+        text:{field:"index",type:"quantitative",format:".0f"},
+        color:{condition:{test:"datum.index>70",value:"#1a2332"},value:"#eee"}} }
+  ]
+};
 
-  // ==================== TREND ====================
-  vegaEmbed("#vis-trend", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:280,
-    data:{ url: TREND_URL },
-    layer:[{
-      mark:{ type:"area", line:{ color:"#ffd000", size:2 }, color:"rgba(255, 208, 0, 0.15)"},
+// ═══ HEATMAP 3 — OTP operator × year ═════════════════════════════════
+const specOtpHeatmap = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:250,
+  config:{background:"transparent", view:{stroke:null},
+          axis:{labelColor:"#8899aa",titleColor:"#8899aa",domainColor:"transparent",
+                tickColor:"transparent",labelFont:"Libre Franklin, sans-serif",labelFontSize:11}},
+  data:{url:"data/ontime.json"},
+  layer:[
+    { mark:{type:"rect",cornerRadius:2,binSpacing:3},
       encoding:{
-        x:{ field:"year", type:"ordinal", axis:{ title:"Reporting Year", labelAngle:0, labelColor:"#fff", titleColor:"#fff" } },
-        y:{ field:"otp", type:"quantitative", scale:{ domain:[88,100] }, axis:{ title:"Network Punctuality Average (%)", labelColor:"#fff", titleColor:"#fff" }},
-        tooltip:[{field:"year", title:"Fiscal Window Year"}, {field:"otp", title:"Punctuality System Score", format:".1f"}]
+        x:{field:"year",type:"ordinal",axis:{title:null,labelAngle:-35}},
+        y:{field:"operator",type:"nominal",sort:{op:"mean",field:"otp_pct",order:"descending"},
+           axis:{title:null}},
+        color:{field:"otp_pct",type:"quantitative",title:"OTP (%)",
+               scale:{domain:[80,98],range:["#e05252","#e8854a","#f0a500","#aacf6a","#7bd4a0","#4abf8a"]},
+               legend:{orient:"right",labelColor:"#aab",titleColor:"#aab",
+                       labelFont:"Courier Prime, monospace",titleFont:"Libre Franklin, sans-serif",
+                       titleFontSize:11,labelFontSize:10,gradientLength:130}},
+        tooltip:[{field:"operator",title:"Operator"},{field:"year",title:"Year"},
+                 {field:"otp_pct",title:"On-time %",format:".1f"},{field:"target",title:"Target %",format:".1f"}]} },
+    { mark:{type:"text",fontSize:10,fontWeight:"500",font:"Courier Prime, monospace"},
+      encoding:{
+        x:{field:"year",type:"ordinal"},
+        y:{field:"operator",type:"nominal",sort:{op:"mean",field:"otp_pct",order:"descending"}},
+        text:{field:"otp_pct",type:"quantitative",format:".0f"},
+        color:{condition:{test:"datum.otp_pct>92",value:"#1a2332"},value:"#eee"}} }
+  ]
+};
+
+// ═══ LOLLIPOP — OTP vs target ════════════════════════════════════════
+const specLollipop = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:280,
+  config:{background:"transparent", view:{stroke:null}, axis:AXIS},
+  data:{url:"data/ontime.json"},
+  params:[{name:"yearSel",value:"2023-24",
+    bind:{input:"select",options:["2019-20","2020-21","2021-22","2022-23","2023-24"],name:"Financial year: "}}],
+  transform:[{filter:"datum.year===yearSel"}],
+  layer:[
+    { mark:{type:"rule",strokeWidth:3,strokeCap:"round",opacity:0.7},
+      encoding:{
+        y:{field:"operator",type:"nominal",sort:"-x",axis:{title:null,labelFontSize:12}},
+        x:{field:"target",type:"quantitative",title:"On-time performance (%)",
+           scale:{domain:[78,100]},axis:{tickCount:5}},
+        x2:{field:"otp_pct"},
+        color:{condition:{test:"datum.otp_pct>=datum.target",value:"#7bd4a0"},value:"#e05252"}} },
+    { mark:{type:"point",size:80,shape:"circle",strokeWidth:2,filled:false,opacity:0.45},
+      encoding:{
+        y:{field:"operator",type:"nominal",sort:"-x"},
+        x:{field:"target",type:"quantitative"},
+        color:{value:"#ffffff"},
+        tooltip:[{field:"operator",title:"Operator"},{field:"target",title:"Target %",format:".1f"}]} },
+    { mark:{type:"point",filled:true,size:160,opacity:1,stroke:"#0d1117",strokeWidth:1.5},
+      encoding:{
+        y:{field:"operator",type:"nominal",sort:"-x"},
+        x:{field:"otp_pct",type:"quantitative"},
+        color:{condition:{test:"datum.otp_pct>=datum.target",value:"#7bd4a0"},value:"#e05252"},
+        tooltip:[{field:"operator",title:"Operator"},{field:"year",title:"Year"},
+                 {field:"otp_pct",title:"On-time %",format:".1f"},{field:"target",title:"Target %",format:".1f"}]} }
+  ]
+};
+
+// ═══ SCATTER — Patronage vs OTP ═════════════════════════════════════
+const specScatter = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:320,
+  config:{background:"transparent", view:{stroke:null}, axis:AXIS},
+  data:{url:"data/scatter.json"},
+  params:[{name:"cityHL",select:{type:"point",fields:["city"]},bind:"legend"}],
+  mark:{type:"point",filled:true,opacity:0.9,stroke:"#0d1117",strokeWidth:1},
+  encoding:{
+    x:{field:"passengers_m",type:"quantitative",title:"Annual boardings (millions)",axis:{tickCount:5}},
+    y:{field:"otp_pct",type:"quantitative",title:"On-time performance (%)",
+       scale:{domain:[78,100]},axis:{tickCount:5}},
+    color:{field:"city",type:"nominal",scale:CITY_COLORS,
+           legend:{orient:"top-right",...LEG,title:null}},
+    size:{field:"passengers_m",type:"quantitative",scale:{range:[60,450]},legend:null},
+    shape:{field:"phase",type:"nominal",
+           scale:{domain:["Pre-COVID peak","COVID onset","Deep lockdown","Recovery"],
+                  range:["circle","triangle","cross","square"]},
+           legend:{orient:"bottom-left",labelColor:"#ccd",titleColor:"#aab",
+                   fillColor:"#0d1117",strokeColor:"#2d4057",
+                   labelFont:"Libre Franklin, sans-serif",labelFontSize:11,title:"Period",symbolSize:100}},
+    opacity:{condition:{param:"cityHL",value:0.9},value:0.1},
+    tooltip:[{field:"city",title:"City"},{field:"year",title:"Year"},
+             {field:"passengers_m",title:"Boardings (M)",format:".1f"},
+             {field:"otp_pct",title:"On-time %",format:".1f"},{field:"phase",title:"Period"}]
+  }
+};
+
+// ═══ NIGHTINGALE — Iron ore by port ═════════════════════════════════
+const IRON_2022 = [
+  {port:"Port Hedland",mt:558.6,dummy:1},
+  {port:"Dampier",     mt:143.6,dummy:1},
+  {port:"Geraldton",   mt:11.3, dummy:1},
+  {port:"Esperance",   mt:7.6,  dummy:1},
+];
+const specNightingaleIron = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:340, height:340,
+  config:{background:"transparent", view:{stroke:null}},
+  data:{values:IRON_2022},
+  layer:[
+    { mark:{type:"arc",innerRadius:40,stroke:"#0d1117",strokeWidth:2,opacity:0.88},
+      encoding:{
+        theta:{field:"dummy",type:"quantitative",stack:true},
+        radius:{field:"mt",type:"quantitative",scale:{type:"sqrt",range:[40,160]}},
+        color:{field:"port",type:"nominal",
+               scale:{domain:["Port Hedland","Dampier","Geraldton","Esperance"],
+                      range:["#f0a500","#4a9fd4","#7bd4a0","#c47adb"]},
+               legend:{orient:"right",...LEG,title:null,symbolSize:130}},
+        tooltip:[{field:"port",title:"Port"},{field:"mt",title:"Exports 2022 (Mt)",format:".1f"}]} },
+    { mark:{type:"text",radiusOffset:14,fontSize:11,fontWeight:"600",font:"Courier Prime, monospace"},
+      encoding:{theta:{field:"dummy",type:"quantitative",stack:true},
+        radius:{field:"mt",type:"quantitative",scale:{type:"sqrt",range:[40,160]}},
+        text:{field:"mt",type:"quantitative",format:".0f",bandPosition:0.5},
+        color:{value:"#ffffff"}} }
+  ]
+};
+
+// ═══ NIGHTINGALE — Coal by port ═════════════════════════════════════
+const COAL_2022 = [
+  {port:"Newcastle",  mt:131.68,dummy:1},
+  {port:"Hay Point",  mt:99.9,  dummy:1},
+  {port:"Gladstone",  mt:59.8,  dummy:1},
+  {port:"Abbot Point",mt:33.4,  dummy:1},
+  {port:"Brisbane",   mt:2.0,   dummy:1},
+];
+const specNightingaleCoal = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:340, height:340,
+  config:{background:"transparent", view:{stroke:null}},
+  data:{values:COAL_2022},
+  layer:[
+    { mark:{type:"arc",innerRadius:40,stroke:"#0d1117",strokeWidth:2,opacity:0.88},
+      encoding:{
+        theta:{field:"dummy",type:"quantitative",stack:true},
+        radius:{field:"mt",type:"quantitative",scale:{type:"sqrt",range:[40,155]}},
+        color:{field:"port",type:"nominal",
+               scale:{domain:["Newcastle","Hay Point","Gladstone","Abbot Point","Brisbane"],
+                      range:["#f0a500","#4a9fd4","#7bd4a0","#e05252","#c47adb"]},
+               legend:{orient:"right",...LEG,title:null,symbolSize:130}},
+        tooltip:[{field:"port",title:"Port"},{field:"mt",title:"Exports 2022 (Mt)",format:".1f"}]} },
+    { mark:{type:"text",radiusOffset:14,fontSize:11,fontWeight:"600",font:"Courier Prime, monospace"},
+      encoding:{theta:{field:"dummy",type:"quantitative",stack:true},
+        radius:{field:"mt",type:"quantitative",scale:{type:"sqrt",range:[40,155]}},
+        text:{field:"mt",type:"quantitative",format:".0f",bandPosition:0.5},
+        color:{value:"#ffffff"}} }
+  ]
+};
+
+// ═══ WAFFLE — Gauge network km ═══════════════════════════════════════
+const specWaffle = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:260, height:260,
+  config:{background:"transparent", view:{stroke:null},
+          axis:{domain:false,ticks:false,labels:false,title:null,grid:false}},
+  data:{url:"data/waffle_gauge.json"},
+  mark:{type:"rect",cornerRadius:3,width:20,height:20,opacity:0.92,stroke:"#0d1117",strokeWidth:2},
+  encoding:{
+    x:{field:"col",type:"ordinal",axis:null,scale:{paddingOuter:0.05}},
+    y:{field:"row",type:"ordinal",sort:"descending",axis:null,scale:{paddingOuter:0.05}},
+    color:{field:"gauge",type:"nominal",
+           scale:{domain:["Narrow gauge (1067mm)","Standard gauge (1435mm)","Broad gauge (1600mm)"],
+                  range:["#e05252","#f0a500","#4a9fd4"]},
+           legend:{orient:"bottom",labelColor:"#ccd",titleColor:"#aab",
+                   fillColor:"transparent",strokeColor:"transparent",
+                   labelFont:"Libre Franklin, sans-serif",labelFontSize:11,
+                   title:null,symbolSize:120,columns:1}},
+    tooltip:[{field:"gauge",title:"Gauge"}]
+  }
+};
+
+// ═══ DUMBBELL — Railway investment 1996–2024 ══════════════════════════
+const specDumbbell = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:320,
+  config:{background:"transparent", view:{stroke:null}, axis:AXIS},
+  data:{url:"data/investment.json"},
+  layer:[
+    { mark:{type:"point",filled:true,size:50,opacity:0.5,stroke:"none"},
+      encoding:{
+        y:{field:"railways_b",type:"quantitative",title:"Railway construction (AU$ billion)",axis:{tickCount:6}},
+        x:{field:"year",type:"ordinal",axis:{title:null,labelAngle:-45,labelFontSize:10}},
+        color:{condition:[
+                 {test:"datum.year==='1996'",value:"#e05252"},
+                 {test:"datum.year==='2024'",value:"#7bd4a0"}
+               ],value:"#4a9fd4"},
+        size:{condition:[
+                {test:"datum.year==='1996'||datum.year==='2024'",value:220}
+              ],value:60},
+        tooltip:[{field:"year",title:"Year"},{field:"railways_b",title:"Railways (AU$B)",format:".2f"},
+                 {field:"railways_m",title:"Railways (AU$M)",format:",.0f"}]
       }
-    },{
-      data:{ values:[{y:92}] },
-      mark:{ type:"rule", strokeDash:[4,3], color:"rgba(255,200,0,.5)" },
-      encoding:{ y:{ field:"y", type:"quantitative" }}
-    }],
-    config:{ ...CFG, background:"transparent" }
-  }, OPT);
-
-  // ==================== TIMELINE ====================
-  vegaEmbed("#vis-timeline", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:300,
-    data:{ values: projectsData || [] },
-    mark:{ type:"bar", cornerRadius:4 },
-    encoding:{
-      y:{ field:"project", type:"nominal", axis:{ title:null }},
-      x:{ field:"start", type:"quantitative", axis: { format: "d", title: "Project Delivery Implementation Window (Calendar Year Baseline)" } },
-      x2:{ field:"end" },
-      color:{ field:"type", type:"nominal", scale: PROJECT_SCALE, legend:null },
-      size:{ value: 20 },
-      tooltip:[{field:"project", title:"Strategic Project"}, {field:"start", title:"Commenced"}, {field:"end", title:"Target Opening"}, {field:"budget", title:"Approved Budget ($B)", format:".1f"}]
     },
-    config: CFG
-  }, OPT);
-
-  // ==================== BUDGET ====================
-  vegaEmbed("#vis-budget", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:340,
-    data:{ values: projectsData || [] },
-    mark:{ type:"arc", innerRadius:80, stroke:"#fff", strokeWidth:1 },
-    encoding:{
-      theta:{ field:"budget", type:"quantitative" },
-      color:{ field:"type", type:"nominal", scale: PROJECT_SCALE, legend:{ orient:"bottom", columns:2, title:null } },
-      tooltip:[{field:"type", title:"Project Cluster Portfolio"}, {field:"budget", title:"Funding Envelope ($B)", format:".1f"}]
+    { transform:[{filter:"datum.year==='1996'||datum.year==='2024'"}],
+      mark:{type:"point",filled:true,size:220,opacity:1,stroke:"#0d1117",strokeWidth:2},
+      encoding:{
+        y:{field:"railways_b",type:"quantitative"},
+        x:{field:"year",type:"ordinal"},
+        color:{condition:[
+                 {test:"datum.year==='1996'",value:"#e05252"},
+                 {test:"datum.year==='2024'",value:"#7bd4a0"}
+               ],value:"#4a9fd4"},
+        tooltip:[{field:"year",title:"Year"},{field:"railways_b",title:"Railways (AU$B)",format:".2f"}]
+      }
     },
-    config: CFG
-  }, OPT);
+    { transform:[{filter:"datum.year==='1996'||datum.year==='2024'"}],
+      mark:{type:"text",dy:-18,fontSize:12,fontWeight:"700",font:"Courier Prime, monospace"},
+      encoding:{
+        y:{field:"railways_b",type:"quantitative"},
+        x:{field:"year",type:"ordinal"},
+        text:{field:"railways_b",type:"quantitative",format:"$,.2f"},
+        color:{condition:[
+                 {test:"datum.year==='1996'",value:"#e05252"},
+                 {test:"datum.year==='2024'",value:"#7bd4a0"}
+               ],value:"#4a9fd4"}
+      }
+    }
+  ]
+};
 
-  // ==================== GROWTH ====================
-  vegaEmbed("#vis-growth", {
-    $schema:"https://vega.github.io/schema/vega-lite/v5.json",
-    width:"container", height:340,
-    data:{ url: GROWTH_URL },
-    mark:{ type:"line", point:{ size: 60, filled: true } },
-    encoding:{
-      x:{ field:"year", type:"ordinal", axis: { labelAngle: 0, title: "Evaluation Projection Year Target" } },
-      y:{ field:"pat", type:"quantitative", axis: { title: "Network Total Annual Trips (Millions)" } },
-      color:{ field:"type", type:"nominal", scale: { domain:["Actual", "Projected"], range:["#0057a0", "#ffd000"] }, legend:{ title:"Dataset Status Type" } },
-      tooltip:[{field:"year", title:"Target Profile Year"}, {field:"pat", title:"Trip Forecast Volume (M)"}, {field:"type", title:"Data State"}]
-    },
-    config: CFG
-  }, OPT);
-
-  console.log("✅ Melbourne Transport Dashboard loaded successfully");
+// ═══ EMBED ALL ════════════════════════════════════════════════════════
+const OPT = {renderer:"svg", actions:false};
+[
+  ["#viz-network-map",        specNetworkMap],
+  ["#viz-bubble-map",         specBubbleMap],
+  ["#viz-scatter",            specScatter],
+  ["#viz-heatmap-monthly",    specHeatmapMonthly],
+  ["#viz-covid-heatmap",      specCovidHeatmap],
+  ["#viz-otp-heatmap",        specOtpHeatmap],
+  ["#viz-lollipop",           specLollipop],
+  ["#viz-otp-map",            specOtpMap],
+  ["#viz-nightingale-iron",   specNightingaleIron],
+  ["#viz-nightingale-coal",   specNightingaleCoal],
+  ["#viz-waffle",             specWaffle],
+  ["#viz-dumbbell",           specDumbbell],
+].forEach(([id, spec]) => {
+  vegaEmbed(id, spec, OPT).catch(e => {
+    const el = document.querySelector(id);
+    if (el) el.innerHTML = `<p style="color:#e05252;padding:1rem;font-family:monospace">Chart error: ${e.message}</p>`;
+    console.error(id, e);
+  });
 });
+
+// ─ Hero counter animation ─
+function animateCounters() {
+  document.querySelectorAll(".stat-number").forEach(el => {
+    const target = +el.dataset.target, prefix = el.dataset.prefix||"", suffix = el.dataset.suffix||"";
+    const t0 = performance.now();
+    (function step(now) {
+      const p = Math.min((now-t0)/2200,1), ease = 1-Math.pow(1-p,3);
+      el.textContent = prefix + Math.floor(ease*target).toLocaleString("en-AU") + suffix;
+      if (p<1) requestAnimationFrame(step);
+    })(t0);
+  });
+}
+new IntersectionObserver((entries,obs) => {
+  entries.forEach(e => { if(e.isIntersecting){animateCounters();obs.disconnect();} });
+},{threshold:0.3}).observe(document.querySelector(".hero-stats"));
+
+// ─ Scroll reveal ─
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add("revealed"); });
+},{threshold:0.06});
+document.querySelectorAll(".reveal,.chapter,.timeline-item,.freight-fact").forEach(el=>ro.observe(el));
 </script>
 </body>
 </html>
