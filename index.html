@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tracks Across Australia — A Nation on Rails</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Courier+Prime:wght@400;700&family=Libre+Franklin:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-rail-lines" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">FIT2179 Data Visualisation 2 · Monash University · Semester 1, 2026</div>
+    <h1 class="hero-title">Tracks Across<br><em>Australia</em></h1>
+    <p class="hero-subtitle">The untold story of a nation on rails — from iron-ore Pilbara to the Harbour City, from century-old gauge wars to a billion-dollar building boom.</p>
+    <div class="hero-stats">
+      <div class="stat-item"><span class="stat-number" data-target="33000" data-suffix=" km">0</span><span class="stat-label">national railway network</span></div>
+      <div class="stat-item"><span class="stat-number" data-target="627" data-suffix=" M">0</span><span class="stat-label">urban rail trips in 2022–23</span></div>
+      <div class="stat-item"><span class="stat-number" data-prefix="$" data-target="17" data-suffix=" B">0</span><span class="stat-label">invested in rail 2023–24</span></div>
+      <div class="stat-item"><span class="stat-number" data-target="3" data-suffix=" gauges">0</span><span class="stat-label">different track widths in use</span></div>
+    </div>
+    <div class="scroll-hint">Scroll to explore ↓</div>
+  </div>
+</header>
+
+<nav class="chapter-nav">
+  <a href="#network">The Network</a>
+  <a href="#passengers">Passengers</a>
+  <a href="#covid">COVID Cliff</a>
+  <a href="#reliability">Reliability</a>
+  <a href="#freight">Freight</a>
+  <a href="#gauges">Gauge Wars</a>
+  <a href="#investment">Investment</a>
+</nav>
+
+<!-- ═══ CH 1 — NETWORK ══════════════════════════════════════════════ -->
+<section id="network" class="chapter">
+  <div class="chapter-label">Chapter 1 — The Network</div>
+  <h2 class="chapter-title">Australia's Spine of Steel</h2>
+  <p class="chapter-intro">Over 33,000 kilometres of railway crisscross a continent the size of Europe. This network carries everything from iron ore across the Pilbara to commuters through Sydney's tunnels — yet it remains largely invisible to the average Australian.</p>
+  <p class="chapter-body">The map below plots every major rail corridor colour-coded by <strong>track gauge</strong>. Standard-gauge lines (amber) form the interstate spine. Victoria's broad-gauge (blue) network is the country's most intensively used. Queensland's vast narrow-gauge (red) system stretches north to Cairns and west to Mt Isa. Hover any line for details.</p>
+  <div class="viz-container viz-wide reveal">
+    <h3 class="viz-title">Map 1 — National rail network by track gauge</h3>
+    <div id="viz-network-map"></div>
+    <p class="viz-caption">Major corridors coloured by gauge. Line thickness encodes service intensity: thick = interstate or heavy-haul; thin = regional or urban. Hover for line name, operator and length.<br><em>Source: Geoscience Australia Foundation Rail Infrastructure dataset; ARTC Network Map 2024.</em></p>
+  </div>
+  <div class="callout-grid three-cols">
+    <div class="callout reveal"><div class="callout-swatch" style="background:#f0a500"></div><div class="callout-label">Standard gauge (1,435 mm)</div><div class="callout-value">~7,900 km</div><div class="callout-desc">Interstate spine: Sydney–Perth, Adelaide–Darwin. Enables through running across state borders.</div></div>
+    <div class="callout reveal"><div class="callout-swatch" style="background:#e05252"></div><div class="callout-label">Narrow gauge (1,067 mm)</div><div class="callout-value">~15,500 km</div><div class="callout-desc">Queensland, WA Pilbara &amp; Tasmania. The most kilometres of any gauge — a Queensland colonial legacy.</div></div>
+    <div class="callout reveal"><div class="callout-swatch" style="background:#4a9fd4"></div><div class="callout-label">Broad gauge (1,600 mm)</div><div class="callout-value">~4,380 km</div><div class="callout-desc">Victoria's suburban &amp; regional network. A colonial-era decision that still shapes travel today.</div></div>
+  </div>
+</section>
+
+<!-- ═══ CH 2 — PASSENGERS ════════════════════════════════════════════ -->
+<section id="passengers" class="chapter chapter-alt">
+  <div class="chapter-label">Chapter 2 — Passengers</div>
+  <h2 class="chapter-title">Cities in Motion</h2>
+  <p class="chapter-intro">Urban heavy rail is how Australians get to work. In 2022–23, the five major capital city networks carried over <strong>627 million passengers</strong> — equivalent to every Australian catching the train 24 times.</p>
+  <p class="chapter-body">Sydney dominates, carrying more than the other four cities combined. But the fastest-growing story is Perth: its METRONET expansion keeps pushing patronage higher even as Melbourne and Sydney still recover from the pandemic.</p>
+  <div class="viz-row">
+    <div class="viz-container viz-main reveal">
+      <h3 class="viz-title">Map 2 — Annual rail boardings by city (2022–23)</h3>
+      <div id="viz-bubble-map"></div>
+      <p class="viz-caption">Circle area is proportional to annual heavy-rail boardings. Hover for detail.<br><em>Source: BITRE Trainline 12, 2025.</em></p>
+    </div>
+    <div class="viz-container viz-side reveal">
+      <h3 class="viz-title">Scatter — Patronage vs on-time performance, 2018–2023</h3>
+      <div id="viz-scatter"></div>
+      <p class="viz-caption">Each point = one city × one year. Size = boardings. Shape = pandemic phase. Click a city in the legend to isolate it.<br><em>Sources: BITRE Trainline 12 (patronage); state government annual reports (OTP).</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CH 3 — COVID ════════════════════════════════════════════════ -->
+<section id="covid" class="chapter">
+  <div class="chapter-label">Chapter 3 — The COVID Cliff</div>
+  <h2 class="chapter-title">When the Trains<br><em>Ran Empty</em></h2>
+  <p class="chapter-intro">In March 2020, Australia locked down. Rail patronage collapsed overnight. Sydney lost <strong>39% of its riders</strong> in 2019–20, then another <strong>37%</strong> in 2020–21. Melbourne fell even harder. The trains kept running — but almost no one was on board.</p>
+  <p class="chapter-body">The monthly heatmap reveals the full story. The abrupt collapse in March–April 2020 is unmistakable. Notice also the regular seasonal dips every January and July — school holidays — and how that rhythm gradually returned as the city came back to life.</p>
+  <div class="big-quote reveal">
+    <span class="quote-mark">"</span>
+    <span class="quote-text">By 2022–23, patronage had <em>not returned</em> to 2017–18 levels in Sydney or Melbourne — the two cities hardest hit by prolonged lockdowns.</span>
+    <span class="quote-source">— BITRE Trainline 12, 2025</span>
+  </div>
+  <div class="viz-container viz-wide reveal">
+    <h3 class="viz-title">Heatmap 1 — Sydney Trains monthly boardings 2018–2024</h3>
+    <div id="viz-heatmap-monthly"></div>
+    <p class="viz-caption">Each cell = one month. Amber/yellow = high patronage; dark blue = near zero. The COVID collapse (Mar–Apr 2020) and Delta lockdown (Aug–Sep 2021) stand out as cold bands. School holiday dips recur in January and July every year.<br><em>Source: Transport for NSW Opal data (aggregate); BITRE Trainline 12.</em></p>
+  </div>
+  <div class="viz-container viz-wide reveal">
+    <h3 class="viz-title">Heatmap 2 — Recovery index by city, 2009–10 to 2022–23 (2017–18 = 100)</h3>
+    <div id="viz-covid-heatmap"></div>
+    <p class="viz-caption">Each cell shows patronage as a percentage of the 2017–18 pre-COVID peak. Red = well below baseline; green = recovered or surpassed. Perth's resilience is clear — it dropped less and recovered faster.<br><em>Source: BITRE Trainline 12, 2025.</em></p>
+  </div>
+</section>
+
+<!-- ═══ CH 4 — RELIABILITY ══════════════════════════════════════════ -->
+<section id="reliability" class="chapter chapter-alt">
+  <div class="chapter-label">Chapter 4 — Reliability</div>
+  <h2 class="chapter-title">On Time, or Off Track?</h2>
+  <p class="chapter-intro">Every delayed train is a missed meeting, a late school pickup, a lost hour. Australians expect their trains to run on time — but performance varies dramatically across operators and years.</p>
+  <p class="chapter-body">The heatmap maps each operator's on-time performance across five years. Deep red means chronic underperformance; teal means reliability. Regional services — V/Line and NSW TrainLink — consistently sit in the red. The lollipop chart lets you explore year by year: the white ring is the published target, and colour shows whether it was met.</p>
+  <div class="viz-row">
+    <div class="viz-container viz-main reveal">
+      <h3 class="viz-title">Heatmap 3 — On-time performance: operator × year</h3>
+      <div id="viz-otp-heatmap"></div>
+      <p class="viz-caption">Each cell = OTP%. Red = below target; teal = at or above. Annotated with actual percentage. COVID years (2020–21) show inflated scores — fewer services ran, so fewer were late.<br><em>Sources: NSW Transport Annual Report; VIC DoT; Queensland Rail; Transperth; DPTI SA — 2019 to 2024.</em></p>
+    </div>
+    <div class="viz-container viz-side reveal">
+      <h3 class="viz-title">Lollipop — OTP vs target by operator</h3>
+      <div id="viz-lollipop"></div>
+      <p class="viz-caption">Coloured dot = actual OTP. White ring = published target. Use the dropdown to change year. Green = met target; red = missed.<br><em>Sources: State government annual reports.</em></p>
+    </div>
+  </div>
+  <div class="viz-container viz-wide reveal">
+    <h3 class="viz-title">Map 3 — On-time performance by operator location (2023–24)</h3>
+    <div id="viz-otp-map"></div>
+    <p class="viz-caption">Circle size = OTP percentage. Green = at or above target; red = below target. Regional operators (NSW TrainLink and V/Line, shown offset from their metro counterparts) consistently underperform urban services. Annotated with OTP score.<br><em>Sources: State government annual reports 2023–24.</em></p>
+  </div>
+</section>
+
+<!-- ═══ CH 5 — FREIGHT ══════════════════════════════════════════════ -->
+<section id="freight" class="chapter">
+  <div class="chapter-label">Chapter 5 — Freight</div>
+  <h2 class="chapter-title">The Invisible Railway</h2>
+  <p class="chapter-intro">While passenger trains command the headlines, Australia's freight railways are among the busiest on Earth. The Pilbara heavy-haul lines run trains over 2.5 km long, 24 hours a day, seven days a week — mostly invisible to the Australian public.</p>
+  <p class="chapter-body">The two Nightingale roses below break down freight exports by port for coal and iron ore — Australia's two largest rail freight commodities. Each petal's outward reach encodes the volume. Port Hedland, handling over half a billion tonnes of iron ore every year, dwarfs every other port in the country.</p>
+  <div class="viz-row">
+    <div class="viz-container viz-side reveal">
+      <h3 class="viz-title">Nightingale — Iron ore exports by port (2022, Mt)</h3>
+      <div id="viz-nightingale-iron"></div>
+      <p class="viz-caption">Radius encodes export tonnage in millions of tonnes. Port Hedland alone handles 77% of Australia's iron ore exports — all transported there by private heavy-haul rail from the Pilbara mines.<br><em>Source: BITRE Trainline 12, 2025 (Table 22).</em></p>
+    </div>
+    <div class="viz-container viz-side reveal">
+      <h3 class="viz-title">Nightingale — Coal exports by port (2022, Mt)</h3>
+      <div id="viz-nightingale-coal"></div>
+      <p class="viz-caption">Radius encodes export tonnage in millions of tonnes. Newcastle dominates Queensland and NSW coal exports, served by the Hunter Valley coal network and ARTC's interstate corridor.<br><em>Source: BITRE Trainline 12, 2025 (Table 23).</em></p>
+    </div>
+  </div>
+  <div class="callout-grid two-cols">
+    <div class="callout reveal"><div class="callout-value">721 Mt</div><div class="callout-label">iron ore exported by rail in 2022</div><div class="callout-desc">Port Hedland alone handles 558.6 Mt — all transported from the Pilbara by BHP and Rio Tinto private heavy-haul lines.</div></div>
+    <div class="callout reveal"><div class="callout-value">327 Mt</div><div class="callout-label">coal exported by rail in 2022</div><div class="callout-desc">Down from 391 Mt in 2018 as thermal coal demand softens — though metallurgical coal from Queensland remains strong.</div></div>
+  </div>
+</section>
+
+<!-- ═══ CH 6 — GAUGE WARS ════════════════════════════════════════════ -->
+<section id="gauges" class="chapter chapter-alt">
+  <div class="chapter-label">Chapter 6 — The Gauge Wars</div>
+  <h2 class="chapter-title">A Nation Divided<br><em>by Millimetres</em></h2>
+  <p class="chapter-intro">In 1854, Victoria opened Australia's first steam railway on <strong>broad gauge (1,600 mm)</strong> track. Five years later, NSW opened on <strong>standard gauge (1,435 mm)</strong>. Queensland chose <strong>narrow gauge (1,067 mm)</strong> for cheaper construction. Three colonies. Three gauges. A century of broken journeys.</p>
+  <p class="chapter-body">The waffle chart makes the proportions visceral: each square represents roughly 1% of Australia's total rail network. More than half the country's rail kilometres are narrow gauge. Standard gauge carries nearly all interstate traffic. Broad gauge is almost entirely Victoria.</p>
+  <div class="viz-row">
+    <div class="viz-container viz-side reveal">
+      <h3 class="viz-title">Waffle — Network km by gauge (each cell ≈ 1%)</h3>
+      <div id="viz-waffle"></div>
+      <p class="viz-caption">100 cells = 100% of Australia's ~27,840 km rail network. Narrow gauge (red, 55 cells), standard gauge (amber, 29 cells), broad gauge (blue, 16 cells).<br><em>Source: BITRE Trainline 12, 2025.</em></p>
+    </div>
+    <div class="viz-container viz-main reveal">
+      <div class="gauge-timeline">
+        <h3 class="viz-title" style="margin-bottom:1.2rem">The long road to gauge unification</h3>
+        <div class="timeline-item reveal"><div class="tl-year">1854</div><div class="tl-body">Victoria opens first railway on <strong>broad gauge</strong>, 1,600 mm.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">1855</div><div class="tl-body">NSW switches to <strong>standard gauge</strong> — incompatible with Victoria from the start.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">1865</div><div class="tl-body">Queensland adopts <strong>narrow gauge</strong> (1,067 mm) to cut construction costs.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">1917</div><div class="tl-body">Trans-Australian railway opens, linking Perth to the east on standard gauge.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">1962</div><div class="tl-body">Sydney–Melbourne converted to standard gauge — first direct service in 107 years.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">1995</div><div class="tl-body">Melbourne–Adelaide converted: the interstate standard-gauge spine is finally complete.</div></div>
+        <div class="timeline-item reveal"><div class="tl-year">Today</div><div class="tl-body">Queensland's break-of-gauge at the NSW border remains. Direct Sydney–Brisbane rail is still not possible.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CH 7 — INVESTMENT ════════════════════════════════════════════ -->
+<section id="investment" class="chapter">
+  <div class="chapter-label">Chapter 7 — Building the Future</div>
+  <h2 class="chapter-title">The Billion-Dollar<br>Building Boom</h2>
+  <p class="chapter-intro">Australia is in the midst of its largest rail construction program in history. ABS data shows railway engineering construction reached <strong>AU$17 billion</strong> in 2023–24 — a historic high, and more than triple the 2015 figure of $5.2 billion.</p>
+  <p class="chapter-body">The dumbbell chart strips away year-by-year noise to show total railway infrastructure spend from 1996 to 2024. The bump in the mid-2000s reflects the mining boom. The steep climb after 2015 reflects the urban megaprojects: Sydney Metro, METRONET, and Melbourne Airport Rail.</p>
+  <div class="viz-container viz-wide reveal">
+    <h3 class="viz-title">Dumbbell — Railway engineering construction: 1996 vs 2024 (AU$ billion)</h3>
+    <div id="viz-dumbbell"></div>
+    <p class="viz-caption">Each dot = one year's total railway engineering construction work done (AU$ million, nominal). The dumbbell highlights the start (1996) and end (2024) anchors. Railway investment in 2024 is 4.7× the 1996 level in nominal terms.<br><em>Source: ABS Engineering Construction Activity, Australia (cat. no. 8762.0), accessed via BITRE Yearbook 2025.</em></p>
+  </div>
+  <div class="callout-grid three-cols">
+    <div class="callout reveal"><div class="callout-value">AU$33B</div><div class="callout-label">Sydney Metro (stages 1–3)</div><div class="callout-desc">Australia's largest infrastructure project — 66 km of new track connecting North West to South West Sydney.</div></div>
+    <div class="callout reveal"><div class="callout-value">AU$9B+</div><div class="callout-label">Perth METRONET</div><div class="callout-desc">New lines to Yanchep, Ellenbrook, and the Airport — driving Perth's patronage recovery past pre-COVID levels.</div></div>
+    <div class="callout reveal"><div class="callout-value">AU$7.1B</div><div class="callout-label">Melbourne Airport Rail</div><div class="callout-desc">Long-awaited link under construction — the last major Australian capital without rail to its airport.</div></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <p class="footer-author">FIT2179 Data Visualisation 2 · Monash University, Clayton · Semester 1, 2026</p>
+    <p class="footer-sources-heading">Data sources</p>
+    <ul class="footer-sources">
+      <li><strong>BITRE Trainline 12 (2025)</strong> — Patronage by city (2009–10 to 2022–23), network km by gauge, freight exports by port. <a href="https://www.bitre.gov.au/publications/2025/trainline-12" target="_blank">bitre.gov.au/publications/2025/trainline-12</a></li>
+      <li><strong>ABS Engineering Construction Activity, Australia (cat. no. 8762.0)</strong> — Annual railway construction work done 1996–2024. Freely downloadable, no registration required. <a href="https://www.abs.gov.au/statistics/industry/building-and-construction/engineering-construction-activity-australia/latest-release" target="_blank">abs.gov.au/statistics/…/engineering-construction-activity-australia</a></li>
+      <li><strong>Geoscience Australia Foundation Rail Infrastructure Dataset</strong> — Spatial rail line data used in the network map. <a href="https://digital.atlas.gov.au/datasets/9dd0b398e56d4306b03b89050433febf_0/about" target="_blank">digital.atlas.gov.au (Railway Lines)</a></li>
+      <li><strong>State government annual reports 2019–2024</strong> — On-time performance figures: NSW Transport; VIC Department of Transport; Queensland Rail; Transperth; DPTI SA.</li>
+    </ul>
+    <p class="footer-ai">AI tools (Claude) used for code generation and writing assistance. All data sourced from publicly available Australian government publications. Visualisation authored 2026.</p>
+  </div>
+</footer>
+
+<script>
+// ═══ Shared config ════════════════════════════════════════════════════
+const CITY_COLORS = {
+  domain:["Sydney","Melbourne","Brisbane","Perth","Adelaide"],
+  range: ["#f0a500","#4a9fd4","#7bd4a0","#e05252","#c47adb"]
+};
+const AXIS = {
+  gridColor:"#1e2a3a", domainColor:"#2d4057", tickColor:"#2d4057",
+  labelColor:"#8899aa", titleColor:"#8899aa",
+  labelFont:"Libre Franklin, sans-serif", titleFont:"Libre Franklin, sans-serif",
+  labelFontSize:11
+};
+const LEG = {
+  labelColor:"#ccd", titleColor:"#aab",
+  fillColor:"transparent", strokeColor:"transparent",
+  labelFont:"Libre Franklin, sans-serif", labelFontSize:12
+};
+const TOPO_AU = {
+  url:"https://cdn.jsdelivr.net/npm/vega-datasets@2.2.0/data/world-110m.json",
+  format:{type:"topojson", feature:"countries"}
+};
+const MAP_PROJ = {type:"mercator", center:[134,-28], scale:680};
+
+// ═══ MAP 1 — Network geoshape ════════════════════════════════════════
+const specNetworkMap = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:520,
+  config:{background:"#0d1117", view:{stroke:null}},
+  projection:{type:"mercator", center:[134,-28], scale:720},
+  layer:[
+    { data:{...TOPO_AU}, transform:[{filter:"datum.id === 36"}],
+      mark:{type:"geoshape", fill:"#1a2332", stroke:"#2d4057", strokeWidth:1} },
+    { data:{url:"data/rail_lines.geojson"},
+      mark:{type:"geoshape", filled:false, strokeCap:"round", strokeJoin:"round", opacity:0.92},
+      encoding:{
+        color:{field:"properties.gauge", type:"nominal", title:"Track gauge",
+          scale:{domain:["Standard gauge","Broad gauge","Narrow gauge","Private heavy haul"],
+                 range:["#f0a500","#4a9fd4","#e05252","#7bd4a0"]},
+          legend:{orient:"bottom-left",...LEG, title:"Track gauge",
+                  titleFont:"Courier Prime, monospace", labelFont:"Courier Prime, monospace",
+                  symbolStrokeWidth:3, padding:8, fillColor:"#0d1117", strokeColor:"#2d4057"}},
+        strokeWidth:{
+          condition:[{test:"datum.properties.type==='interstate'",value:3},
+                     {test:"datum.properties.type==='private heavy haul'",value:2.5}],
+          value:1.8},
+        tooltip:[{field:"properties.name",title:"Line"},
+                 {field:"properties.gauge",title:"Gauge"},
+                 {field:"properties.operator",title:"Operator"},
+                 {field:"properties.length_km",title:"Length (km)",format:",.0f"}]
+      }
+    }
+  ]
+};
+
+// ═══ MAP 2 — Bubble map patronage ════════════════════════════════════
+const CITY_LOCS = [
+  {city:"Sydney",   lon:151.21,lat:-33.87,passengers_m:325.3,pop_m:5.4},
+  {city:"Melbourne",lon:144.96,lat:-37.81,passengers_m:182.5,pop_m:5.2},
+  {city:"Brisbane", lon:153.02,lat:-27.47,passengers_m:47.25,pop_m:2.7},
+  {city:"Perth",    lon:115.86,lat:-31.95,passengers_m:59.7, pop_m:2.2},
+  {city:"Adelaide", lon:138.60,lat:-34.93,passengers_m:12.3, pop_m:1.4},
+];
+const specBubbleMap = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:360,
+  config:{background:"#0d1117", view:{stroke:null}},
+  projection:{type:"mercator", center:[134,-28], scale:600},
+  layer:[
+    { data:{...TOPO_AU}, transform:[{filter:"datum.id===36"}],
+      mark:{type:"geoshape", fill:"#1a2332", stroke:"#2d4057", strokeWidth:0.8} },
+    { data:{values:CITY_LOCS},
+      layer:[
+        { mark:{type:"circle",opacity:0.15,stroke:null},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            size:{field:"passengers_m",type:"quantitative",scale:{range:[2000,55000]},legend:null},
+            color:{field:"city",type:"nominal",scale:CITY_COLORS,legend:null}} },
+        { mark:{type:"circle",opacity:0.88,stroke:"#0d1117",strokeWidth:1.5},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            size:{field:"passengers_m",type:"quantitative",title:"Boardings (M)",
+                  scale:{range:[600,16000]},
+                  legend:{orient:"bottom-right",values:[12,47,60,182,325],
+                          labelColor:"#aab",titleColor:"#aab",
+                          labelFont:"Libre Franklin, sans-serif",titleFont:"Libre Franklin, sans-serif",
+                          labelFontSize:10,titleFontSize:11,fillColor:"#0d1117",strokeColor:"#2d4057",
+                          symbolFillColor:"#aab",symbolOpacity:0.5}},
+            color:{field:"city",type:"nominal",scale:CITY_COLORS,
+                   legend:{orient:"top-right",...LEG,title:"City",fillColor:"#0d1117",strokeColor:"#2d4057"}},
+            tooltip:[{field:"city",title:"City"},
+                     {field:"passengers_m",title:"Boardings 2022–23 (M)",format:".1f"},
+                     {field:"pop_m",title:"Population (M)",format:".1f"}]} },
+        { mark:{type:"text",fontSize:11,fontWeight:"600",dy:-18,font:"Libre Franklin, sans-serif",color:"#eee"},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            text:{field:"city",type:"nominal"}} }
+      ]
+    }
+  ]
+};
+
+// ═══ MAP 3 — OTP map ═════════════════════════════════════════════════
+const OTP_MAP_DATA = [
+  {city:"Sydney Trains",    lon:151.21,lat:-33.87,otp:93.8,target:92.0,gap:1.8},
+  {city:"Metro Melb.",      lon:144.96,lat:-37.81,otp:88.5,target:92.0,gap:-3.5},
+  {city:"Qld Rail",         lon:153.02,lat:-27.47,otp:92.1,target:92.0,gap:0.1},
+  {city:"Transperth",       lon:115.86,lat:-31.95,otp:95.2,target:95.0,gap:0.2},
+  {city:"Adelaide Metro",   lon:138.60,lat:-34.93,otp:94.5,target:94.0,gap:0.5},
+  {city:"NSW TrainLink",    lon:151.7, lat:-32.5, otp:81.6,target:85.0,gap:-3.4},
+  {city:"V/Line",           lon:145.4, lat:-38.5, otp:83.1,target:85.0,gap:-1.9},
+];
+const specOtpMap = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:460,
+  config:{background:"#0d1117", view:{stroke:null}},
+  projection:{type:"mercator", center:[134,-28], scale:640},
+  layer:[
+    { data:{...TOPO_AU}, transform:[{filter:"datum.id===36"}],
+      mark:{type:"geoshape", fill:"#1a2332", stroke:"#2d4057", strokeWidth:0.8} },
+    { data:{values:OTP_MAP_DATA},
+      layer:[
+        { mark:{type:"circle",opacity:0.15,stroke:null},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            size:{field:"otp",type:"quantitative",scale:{range:[3000,28000]},legend:null},
+            color:{condition:{test:"datum.gap>=0",value:"#7bd4a0"},value:"#e05252"}} },
+        { mark:{type:"circle",opacity:0.9,stroke:"#0d1117",strokeWidth:2},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            size:{field:"otp",type:"quantitative",title:"On-time %",scale:{range:[900,7000]},
+                  legend:{orient:"bottom-right",values:[82,88,93,95],
+                          labelColor:"#aab",titleColor:"#aab",
+                          labelFont:"Libre Franklin, sans-serif",titleFont:"Libre Franklin, sans-serif",
+                          labelFontSize:10,titleFontSize:11,fillColor:"#0d1117",strokeColor:"#2d4057",
+                          symbolFillColor:"#aab",symbolOpacity:0.5}},
+            color:{condition:{test:"datum.gap>=0",value:"#7bd4a0"},value:"#e05252"},
+            tooltip:[{field:"city",title:"Operator"},{field:"otp",title:"On-time %",format:".1f"},
+                     {field:"target",title:"Target %",format:".1f"},{field:"gap",title:"Gap (pp)",format:"+.1f"}]} },
+        { mark:{type:"text",fontSize:11,fontWeight:"700",dy:-20,font:"Courier Prime, monospace",color:"#ccd"},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            text:{field:"otp",type:"quantitative",format:".1f"}} },
+        { mark:{type:"text",fontSize:9,dy:-8,font:"Libre Franklin, sans-serif",color:"#8899aa"},
+          encoding:{longitude:{field:"lon",type:"quantitative"},latitude:{field:"lat",type:"quantitative"},
+            text:{field:"city",type:"nominal"}} }
+      ]
+    }
+  ]
+};
+
+// ═══ HEATMAP 1 — Monthly patronage ═══════════════════════════════════
+const specHeatmapMonthly = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:200,
+  config:{background:"transparent", view:{stroke:null},
+          axis:{labelColor:"#8899aa",titleColor:"#8899aa",domainColor:"transparent",
+                tickColor:"transparent",labelFont:"Libre Franklin, sans-serif",labelFontSize:11}},
+  data:{url:"data/monthly_patronage.json"},
+  mark:{type:"rect", cornerRadius:2, binSpacing:2},
+  encoding:{
+    x:{field:"month",type:"ordinal",
+       sort:["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+       axis:{title:null,labelAngle:0}},
+    y:{field:"year",type:"ordinal",sort:"descending",axis:{title:null}},
+    color:{field:"patronage_m",type:"quantitative",title:"Boardings (M)",
+           scale:{range:["#0a0e1a","#1a2a4a","#1e5a8c","#2e8bc0","#f0a500","#ffcc55"]},
+           legend:{orient:"right",labelColor:"#aab",titleColor:"#aab",
+                   labelFont:"Courier Prime, monospace",titleFont:"Libre Franklin, sans-serif",
+                   titleFontSize:11,labelFontSize:10,gradientLength:130}},
+    tooltip:[{field:"year",title:"Year"},{field:"month",title:"Month"},
+             {field:"patronage_m",title:"Boardings (M)",format:".1f"}]
+  }
+};
+
+// ═══ HEATMAP 2 — COVID recovery index ════════════════════════════════
+const specCovidHeatmap = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:170,
+  config:{background:"transparent", view:{stroke:null},
+          axis:{labelColor:"#8899aa",titleColor:"#8899aa",domainColor:"transparent",
+                tickColor:"transparent",labelFont:"Libre Franklin, sans-serif",labelFontSize:11}},
+  data:{url:"data/covid_recovery.json"},
+  layer:[
+    { mark:{type:"rect",cornerRadius:2,binSpacing:2},
+      encoding:{
+        x:{field:"year",type:"ordinal",axis:{title:null,labelAngle:-35}},
+        y:{field:"city",type:"nominal",sort:["Sydney","Melbourne","Brisbane","Perth","Adelaide"],
+           axis:{title:null}},
+        color:{field:"index",type:"quantitative",title:"Index (2017-18=100)",
+               scale:{domain:[30,120],range:["#e05252","#e8854a","#f0a500","#aacf6a","#7bd4a0","#4abf8a"]},
+               legend:{orient:"right",labelColor:"#aab",titleColor:"#aab",
+                       labelFont:"Courier Prime, monospace",titleFont:"Libre Franklin, sans-serif",
+                       titleFontSize:11,labelFontSize:10,gradientLength:110}},
+        tooltip:[{field:"city",title:"City"},{field:"year",title:"Year"},
+                 {field:"index",title:"Index (2017-18=100)",format:".0f"}]} },
+    { mark:{type:"text",fontSize:10,fontWeight:"600",font:"Courier Prime, monospace"},
+      encoding:{
+        x:{field:"year",type:"ordinal"},
+        y:{field:"city",type:"nominal",sort:["Sydney","Melbourne","Brisbane","Perth","Adelaide"]},
+        text:{field:"index",type:"quantitative",format:".0f"},
+        color:{condition:{test:"datum.index>70",value:"#1a2332"},value:"#eee"}} }
+  ]
+};
+
+// ═══ HEATMAP 3 — OTP operator × year ═════════════════════════════════
+const specOtpHeatmap = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:250,
+  config:{background:"transparent", view:{stroke:null},
+          axis:{labelColor:"#8899aa",titleColor:"#8899aa",domainColor:"transparent",
+                tickColor:"transparent",labelFont:"Libre Franklin, sans-serif",labelFontSize:11}},
+  data:{url:"data/ontime.json"},
+  layer:[
+    { mark:{type:"rect",cornerRadius:2,binSpacing:3},
+      encoding:{
+        x:{field:"year",type:"ordinal",axis:{title:null,labelAngle:-35}},
+        y:{field:"operator",type:"nominal",sort:{op:"mean",field:"otp_pct",order:"descending"},
+           axis:{title:null}},
+        color:{field:"otp_pct",type:"quantitative",title:"OTP (%)",
+               scale:{domain:[80,98],range:["#e05252","#e8854a","#f0a500","#aacf6a","#7bd4a0","#4abf8a"]},
+               legend:{orient:"right",labelColor:"#aab",titleColor:"#aab",
+                       labelFont:"Courier Prime, monospace",titleFont:"Libre Franklin, sans-serif",
+                       titleFontSize:11,labelFontSize:10,gradientLength:130}},
+        tooltip:[{field:"operator",title:"Operator"},{field:"year",title:"Year"},
+                 {field:"otp_pct",title:"On-time %",format:".1f"},{field:"target",title:"Target %",format:".1f"}]} },
+    { mark:{type:"text",fontSize:10,fontWeight:"500",font:"Courier Prime, monospace"},
+      encoding:{
+        x:{field:"year",type:"ordinal"},
+        y:{field:"operator",type:"nominal",sort:{op:"mean",field:"otp_pct",order:"descending"}},
+        text:{field:"otp_pct",type:"quantitative",format:".0f"},
+        color:{condition:{test:"datum.otp_pct>92",value:"#1a2332"},value:"#eee"}} }
+  ]
+};
+
+// ═══ LOLLIPOP — OTP vs target ════════════════════════════════════════
+const specLollipop = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:280,
+  config:{background:"transparent", view:{stroke:null}, axis:AXIS},
+  data:{url:"data/ontime.json"},
+  params:[{name:"yearSel",value:"2023-24",
+    bind:{input:"select",options:["2019-20","2020-21","2021-22","2022-23","2023-24"],name:"Financial year: "}}],
+  transform:[{filter:"datum.year===yearSel"}],
+  layer:[
+    { mark:{type:"rule",strokeWidth:3,strokeCap:"round",opacity:0.7},
+      encoding:{
+        y:{field:"operator",type:"nominal",sort:"-x",axis:{title:null,labelFontSize:12}},
+        x:{field:"target",type:"quantitative",title:"On-time performance (%)",
+           scale:{domain:[78,100]},axis:{tickCount:5}},
+        x2:{field:"otp_pct"},
+        color:{condition:{test:"datum.otp_pct>=datum.target",value:"#7bd4a0"},value:"#e05252"}} },
+    { mark:{type:"point",size:80,shape:"circle",strokeWidth:2,filled:false,opacity:0.45},
+      encoding:{
+        y:{field:"operator",type:"nominal",sort:"-x"},
+        x:{field:"target",type:"quantitative"},
+        color:{value:"#ffffff"},
+        tooltip:[{field:"operator",title:"Operator"},{field:"target",title:"Target %",format:".1f"}]} },
+    { mark:{type:"point",filled:true,size:160,opacity:1,stroke:"#0d1117",strokeWidth:1.5},
+      encoding:{
+        y:{field:"operator",type:"nominal",sort:"-x"},
+        x:{field:"otp_pct",type:"quantitative"},
+        color:{condition:{test:"datum.otp_pct>=datum.target",value:"#7bd4a0"},value:"#e05252"},
+        tooltip:[{field:"operator",title:"Operator"},{field:"year",title:"Year"},
+                 {field:"otp_pct",title:"On-time %",format:".1f"},{field:"target",title:"Target %",format:".1f"}]} }
+  ]
+};
+
+// ═══ SCATTER — Patronage vs OTP ═════════════════════════════════════
+const specScatter = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:320,
+  config:{background:"transparent", view:{stroke:null}, axis:AXIS},
+  data:{url:"data/scatter.json"},
+  params:[{name:"cityHL",select:{type:"point",fields:["city"]},bind:"legend"}],
+  mark:{type:"point",filled:true,opacity:0.9,stroke:"#0d1117",strokeWidth:1},
+  encoding:{
+    x:{field:"passengers_m",type:"quantitative",title:"Annual boardings (millions)",axis:{tickCount:5}},
+    y:{field:"otp_pct",type:"quantitative",title:"On-time performance (%)",
+       scale:{domain:[78,100]},axis:{tickCount:5}},
+    color:{field:"city",type:"nominal",scale:CITY_COLORS,
+           legend:{orient:"top-right",...LEG,title:null}},
+    size:{field:"passengers_m",type:"quantitative",scale:{range:[60,450]},legend:null},
+    shape:{field:"phase",type:"nominal",
+           scale:{domain:["Pre-COVID peak","COVID onset","Deep lockdown","Recovery"],
+                  range:["circle","triangle","cross","square"]},
+           legend:{orient:"bottom-left",labelColor:"#ccd",titleColor:"#aab",
+                   fillColor:"#0d1117",strokeColor:"#2d4057",
+                   labelFont:"Libre Franklin, sans-serif",labelFontSize:11,title:"Period",symbolSize:100}},
+    opacity:{condition:{param:"cityHL",value:0.9},value:0.1},
+    tooltip:[{field:"city",title:"City"},{field:"year",title:"Year"},
+             {field:"passengers_m",title:"Boardings (M)",format:".1f"},
+             {field:"otp_pct",title:"On-time %",format:".1f"},{field:"phase",title:"Period"}]
+  }
+};
+
+// ═══ NIGHTINGALE — Iron ore by port ═════════════════════════════════
+const IRON_2022 = [
+  {port:"Port Hedland",mt:558.6,dummy:1},
+  {port:"Dampier",     mt:143.6,dummy:1},
+  {port:"Geraldton",   mt:11.3, dummy:1},
+  {port:"Esperance",   mt:7.6,  dummy:1},
+];
+const specNightingaleIron = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:340, height:340,
+  config:{background:"transparent", view:{stroke:null}},
+  data:{values:IRON_2022},
+  layer:[
+    { mark:{type:"arc",innerRadius:40,stroke:"#0d1117",strokeWidth:2,opacity:0.88},
+      encoding:{
+        theta:{field:"dummy",type:"quantitative",stack:true},
+        radius:{field:"mt",type:"quantitative",scale:{type:"sqrt",range:[40,160]}},
+        color:{field:"port",type:"nominal",
+               scale:{domain:["Port Hedland","Dampier","Geraldton","Esperance"],
+                      range:["#f0a500","#4a9fd4","#7bd4a0","#c47adb"]},
+               legend:{orient:"right",...LEG,title:null,symbolSize:130}},
+        tooltip:[{field:"port",title:"Port"},{field:"mt",title:"Exports 2022 (Mt)",format:".1f"}]} },
+    { mark:{type:"text",radiusOffset:14,fontSize:11,fontWeight:"600",font:"Courier Prime, monospace"},
+      encoding:{theta:{field:"dummy",type:"quantitative",stack:true},
+        radius:{field:"mt",type:"quantitative",scale:{type:"sqrt",range:[40,160]}},
+        text:{field:"mt",type:"quantitative",format:".0f",bandPosition:0.5},
+        color:{value:"#ffffff"}} }
+  ]
+};
+
+// ═══ NIGHTINGALE — Coal by port ═════════════════════════════════════
+const COAL_2022 = [
+  {port:"Newcastle",  mt:131.68,dummy:1},
+  {port:"Hay Point",  mt:99.9,  dummy:1},
+  {port:"Gladstone",  mt:59.8,  dummy:1},
+  {port:"Abbot Point",mt:33.4,  dummy:1},
+  {port:"Brisbane",   mt:2.0,   dummy:1},
+];
+const specNightingaleCoal = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:340, height:340,
+  config:{background:"transparent", view:{stroke:null}},
+  data:{values:COAL_2022},
+  layer:[
+    { mark:{type:"arc",innerRadius:40,stroke:"#0d1117",strokeWidth:2,opacity:0.88},
+      encoding:{
+        theta:{field:"dummy",type:"quantitative",stack:true},
+        radius:{field:"mt",type:"quantitative",scale:{type:"sqrt",range:[40,155]}},
+        color:{field:"port",type:"nominal",
+               scale:{domain:["Newcastle","Hay Point","Gladstone","Abbot Point","Brisbane"],
+                      range:["#f0a500","#4a9fd4","#7bd4a0","#e05252","#c47adb"]},
+               legend:{orient:"right",...LEG,title:null,symbolSize:130}},
+        tooltip:[{field:"port",title:"Port"},{field:"mt",title:"Exports 2022 (Mt)",format:".1f"}]} },
+    { mark:{type:"text",radiusOffset:14,fontSize:11,fontWeight:"600",font:"Courier Prime, monospace"},
+      encoding:{theta:{field:"dummy",type:"quantitative",stack:true},
+        radius:{field:"mt",type:"quantitative",scale:{type:"sqrt",range:[40,155]}},
+        text:{field:"mt",type:"quantitative",format:".0f",bandPosition:0.5},
+        color:{value:"#ffffff"}} }
+  ]
+};
+
+// ═══ WAFFLE — Gauge network km ═══════════════════════════════════════
+const specWaffle = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:260, height:260,
+  config:{background:"transparent", view:{stroke:null},
+          axis:{domain:false,ticks:false,labels:false,title:null,grid:false}},
+  data:{url:"data/waffle_gauge.json"},
+  mark:{type:"rect",cornerRadius:3,width:20,height:20,opacity:0.92,stroke:"#0d1117",strokeWidth:2},
+  encoding:{
+    x:{field:"col",type:"ordinal",axis:null,scale:{paddingOuter:0.05}},
+    y:{field:"row",type:"ordinal",sort:"descending",axis:null,scale:{paddingOuter:0.05}},
+    color:{field:"gauge",type:"nominal",
+           scale:{domain:["Narrow gauge (1067mm)","Standard gauge (1435mm)","Broad gauge (1600mm)"],
+                  range:["#e05252","#f0a500","#4a9fd4"]},
+           legend:{orient:"bottom",labelColor:"#ccd",titleColor:"#aab",
+                   fillColor:"transparent",strokeColor:"transparent",
+                   labelFont:"Libre Franklin, sans-serif",labelFontSize:11,
+                   title:null,symbolSize:120,columns:1}},
+    tooltip:[{field:"gauge",title:"Gauge"}]
+  }
+};
+
+// ═══ DUMBBELL — Railway investment 1996–2024 ══════════════════════════
+const specDumbbell = {
+  $schema:"https://vega.github.io/schema/vega-lite/v5.json",
+  width:"container", height:320,
+  config:{background:"transparent", view:{stroke:null}, axis:AXIS},
+  data:{url:"data/investment.json"},
+  layer:[
+    { mark:{type:"point",filled:true,size:50,opacity:0.5,stroke:"none"},
+      encoding:{
+        y:{field:"railways_b",type:"quantitative",title:"Railway construction (AU$ billion)",axis:{tickCount:6}},
+        x:{field:"year",type:"ordinal",axis:{title:null,labelAngle:-45,labelFontSize:10}},
+        color:{condition:[
+                 {test:"datum.year==='1996'",value:"#e05252"},
+                 {test:"datum.year==='2024'",value:"#7bd4a0"}
+               ],value:"#4a9fd4"},
+        size:{condition:[
+                {test:"datum.year==='1996'||datum.year==='2024'",value:220}
+              ],value:60},
+        tooltip:[{field:"year",title:"Year"},{field:"railways_b",title:"Railways (AU$B)",format:".2f"},
+                 {field:"railways_m",title:"Railways (AU$M)",format:",.0f"}]
+      }
+    },
+    { transform:[{filter:"datum.year==='1996'||datum.year==='2024'"}],
+      mark:{type:"point",filled:true,size:220,opacity:1,stroke:"#0d1117",strokeWidth:2},
+      encoding:{
+        y:{field:"railways_b",type:"quantitative"},
+        x:{field:"year",type:"ordinal"},
+        color:{condition:[
+                 {test:"datum.year==='1996'",value:"#e05252"},
+                 {test:"datum.year==='2024'",value:"#7bd4a0"}
+               ],value:"#4a9fd4"},
+        tooltip:[{field:"year",title:"Year"},{field:"railways_b",title:"Railways (AU$B)",format:".2f"}]
+      }
+    },
+    { transform:[{filter:"datum.year==='1996'||datum.year==='2024'"}],
+      mark:{type:"text",dy:-18,fontSize:12,fontWeight:"700",font:"Courier Prime, monospace"},
+      encoding:{
+        y:{field:"railways_b",type:"quantitative"},
+        x:{field:"year",type:"ordinal"},
+        text:{field:"railways_b",type:"quantitative",format:"$,.2f"},
+        color:{condition:[
+                 {test:"datum.year==='1996'",value:"#e05252"},
+                 {test:"datum.year==='2024'",value:"#7bd4a0"}
+               ],value:"#4a9fd4"}
+      }
+    }
+  ]
+};
+
+// ═══ EMBED ALL ════════════════════════════════════════════════════════
+const OPT = {renderer:"svg", actions:false};
+[
+  ["#viz-network-map",        specNetworkMap],
+  ["#viz-bubble-map",         specBubbleMap],
+  ["#viz-scatter",            specScatter],
+  ["#viz-heatmap-monthly",    specHeatmapMonthly],
+  ["#viz-covid-heatmap",      specCovidHeatmap],
+  ["#viz-otp-heatmap",        specOtpHeatmap],
+  ["#viz-lollipop",           specLollipop],
+  ["#viz-otp-map",            specOtpMap],
+  ["#viz-nightingale-iron",   specNightingaleIron],
+  ["#viz-nightingale-coal",   specNightingaleCoal],
+  ["#viz-waffle",             specWaffle],
+  ["#viz-dumbbell",           specDumbbell],
+].forEach(([id, spec]) => {
+  vegaEmbed(id, spec, OPT).catch(e => {
+    const el = document.querySelector(id);
+    if (el) el.innerHTML = `<p style="color:#e05252;padding:1rem;font-family:monospace">Chart error: ${e.message}</p>`;
+    console.error(id, e);
+  });
+});
+
+// ─ Hero counter animation ─
+function animateCounters() {
+  document.querySelectorAll(".stat-number").forEach(el => {
+    const target = +el.dataset.target, prefix = el.dataset.prefix||"", suffix = el.dataset.suffix||"";
+    const t0 = performance.now();
+    (function step(now) {
+      const p = Math.min((now-t0)/2200,1), ease = 1-Math.pow(1-p,3);
+      el.textContent = prefix + Math.floor(ease*target).toLocaleString("en-AU") + suffix;
+      if (p<1) requestAnimationFrame(step);
+    })(t0);
+  });
+}
+new IntersectionObserver((entries,obs) => {
+  entries.forEach(e => { if(e.isIntersecting){animateCounters();obs.disconnect();} });
+},{threshold:0.3}).observe(document.querySelector(".hero-stats"));
+
+// ─ Scroll reveal ─
+const ro = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add("revealed"); });
+},{threshold:0.06});
+document.querySelectorAll(".reveal,.chapter,.timeline-item,.freight-fact").forEach(el=>ro.observe(el));
+</script>
+</body>
+</html>
