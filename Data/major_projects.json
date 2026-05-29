@@ -1,6 +1,0 @@
-[
-  {"project": "Metro Tunnel", "start": 2017, "end": 2025, "budget": 12.6, "type": "Metro Tunnel"},
-  {"project": "Suburban Rail Loop", "start": 2022, "end": 2053, "budget": 111.5, "type": "Suburban Rail Loop"},
-  {"project": "Level Crossing Removals", "start": 2015, "end": 2030, "budget": 15.0, "type": "Level Crossings"},
-  {"project": "Network Upgrades & Other", "start": 2020, "end": 2035, "budget": 10.9, "type": "Other"}
-]
