@@ -1,0 +1,127 @@
+[
+  {
+    "Area": "Newcastle",
+    "Year": 2018,
+    "Value": 165.2
+  },
+  {
+    "Area": "Hay Point",
+    "Year": 2018,
+    "Value": 118.3
+  },
+  {
+    "Area": "Gladstone",
+    "Year": 2018,
+    "Value": 72.4
+  },
+  {
+    "Area": "Abbot Point",
+    "Year": 2018,
+    "Value": 28.9
+  },
+  {
+    "Area": "Brisbane",
+    "Year": 2018,
+    "Value": 6.5
+  },
+  {
+    "Area": "Newcastle",
+    "Year": 2019,
+    "Value": 158.4
+  },
+  {
+    "Area": "Hay Point",
+    "Year": 2019,
+    "Value": 110.8
+  },
+  {
+    "Area": "Gladstone",
+    "Year": 2019,
+    "Value": 71.7
+  },
+  {
+    "Area": "Abbot Point",
+    "Year": 2019,
+    "Value": 31.8
+  },
+  {
+    "Area": "Brisbane",
+    "Year": 2019,
+    "Value": 5.4
+  },
+  {
+    "Area": "Newcastle",
+    "Year": 2020,
+    "Value": 156.6
+  },
+  {
+    "Area": "Hay Point",
+    "Year": 2020,
+    "Value": 98.3
+  },
+  {
+    "Area": "Gladstone",
+    "Year": 2020,
+    "Value": 70.1
+  },
+  {
+    "Area": "Abbot Point",
+    "Year": 2020,
+    "Value": 29.5
+  },
+  {
+    "Area": "Brisbane",
+    "Year": 2020,
+    "Value": 3.1
+  },
+  {
+    "Area": "Newcastle",
+    "Year": 2021,
+    "Value": 154.5
+  },
+  {
+    "Area": "Hay Point",
+    "Year": 2021,
+    "Value": 97.1
+  },
+  {
+    "Area": "Gladstone",
+    "Year": 2021,
+    "Value": 66.4
+  },
+  {
+    "Area": "Abbot Point",
+    "Year": 2021,
+    "Value": 28.2
+  },
+  {
+    "Area": "Brisbane",
+    "Year": 2021,
+    "Value": 2.8
+  },
+  {
+    "Area": "Newcastle",
+    "Year": 2022,
+    "Value": 131.68
+  },
+  {
+    "Area": "Hay Point",
+    "Year": 2022,
+    "Value": 99.9
+  },
+  {
+    "Area": "Gladstone",
+    "Year": 2022,
+    "Value": 59.8
+  },
+  {
+    "Area": "Abbot Point",
+    "Year": 2022,
+    "Value": 33.4
+  },
+  {
+    "Area": "Brisbane",
+    "Year": 2022,
+    "Value": 2.0
+  }
+]
