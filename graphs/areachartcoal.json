@@ -10,7 +10,7 @@
     "font": "Libre Franklin, sans-serif"
   },
   "data": {
-    "url": "../data/coal_data.json"
+    "url": "/data/coal_data.json"
   },
   "params": [
     {
