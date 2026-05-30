@@ -29,7 +29,7 @@
   "layer": [
     {
       "data": {
-        "url": "../data/world-110m.json",
+        "url": "/data/world-110m.json",
         "format": {
           "type": "topojson",
           "feature": "countries"
@@ -49,7 +49,7 @@
     },
     {
       "data": {
-        "url": "../data/australian_city_transit_all_years.json",
+        "url": "/data/australian_city_transit_all_years.json",
         "format": {
           "type": "json"
         }
