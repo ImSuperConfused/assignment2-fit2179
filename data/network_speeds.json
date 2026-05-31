@@ -1,0 +1,170 @@
+[
+  {
+    "Line":"Melbourne to Bendigo",
+    "City":"Melbourne",
+    "Station_Spacing":40.5,
+    "Speed":95.3,
+    "Type":"Regional"
+  },
+  {
+    "Line":"Melbourne to Ballarat",
+    "City":"Melbourne",
+    "Station_Spacing":16.86,
+    "Speed":93.2,
+    "Type":"Regional"
+  },
+  {
+    "Line":"Melbourne to Geelong",
+    "City":"Melbourne",
+    "Station_Spacing":16.2,
+    "Speed":91.7,
+    "Type":"Regional"
+  },
+  {
+    "Line":"Midland to Northam",
+    "City":"Perth",
+    "Station_Spacing":53.5,
+    "Speed":80.2,
+    "Type":"Regional"
+  },
+  {
+    "Line":"Newcastle Interchange to Muswellbrook",
+    "City":"Newcastle",
+    "Station_Spacing":9.46,
+    "Speed":76.9,
+    "Type":"Regional"
+  },
+  {
+    "Line":"Melbourne to Traralgon",
+    "City":"Melbourne",
+    "Station_Spacing":12.15,
+    "Speed":67.7,
+    "Type":"Regional"
+  },
+  {
+    "Line":"Brisbane to Varsity Lakes",
+    "City":"Brisbane",
+    "Station_Spacing":7.42,
+    "Speed":66.8,
+    "Type":"Regional"
+  },
+  {
+    "Line":"Melbourne to Seymour",
+    "City":"Melbourne",
+    "Station_Spacing":9.0,
+    "Speed":62.5,
+    "Type":"Regional"
+  },
+  {
+    "Line":"Sydney to Newcastle Interchange",
+    "City":"Sydney",
+    "Station_Spacing":11.0,
+    "Speed":62.3,
+    "Type":"Regional"
+  },
+  {
+    "Line":"Yanchep-Perth Underground",
+    "City":"Perth",
+    "Station_Spacing":3.7,
+    "Speed":61.6,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Tallawong-Chatswood (Metro)",
+    "City":"Sydney",
+    "Station_Spacing":3.0,
+    "Speed":58.4,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Sydney to Wollongong",
+    "City":"Sydney",
+    "Station_Spacing":10.25,
+    "Speed":53.5,
+    "Type":"Regional"
+  },
+  {
+    "Line":"Hornsby-Sydney Central (via Strathfield)",
+    "City":"Sydney",
+    "Station_Spacing":11.2,
+    "Speed":53.4,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Beenleigh-Roma Street",
+    "City":"Brisbane",
+    "Station_Spacing":6.66,
+    "Speed":52.2,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Sunbury-Melbourne Central",
+    "City":"Melbourne",
+    "Station_Spacing":3.5,
+    "Speed":51.6,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Kippa Ring-Roma Street",
+    "City":"Brisbane",
+    "Station_Spacing":1.94,
+    "Speed":41.5,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Cronulla-Sydney Central",
+    "City":"Sydney",
+    "Station_Spacing":2.17,
+    "Speed":40.2,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Outer Harbor-Adelaide",
+    "City":"Adelaide",
+    "Station_Spacing":1.46,
+    "Speed":38.6,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Dandenong-Melbourne Central",
+    "City":"Melbourne",
+    "Station_Spacing":2.1,
+    "Speed":36.7,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Glen Waverley-Flinders Street",
+    "City":"Melbourne",
+    "Station_Spacing":1.4,
+    "Speed":36.0,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Midland-Perth",
+    "City":"Perth",
+    "Station_Spacing":1.14,
+    "Speed":35.6,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Belair-Adelaide",
+    "City":"Adelaide",
+    "Station_Spacing":1.75,
+    "Speed":35.0,
+    "Type":"Urban"
+  },
+  {
+    "Line":"High Wycombe-Perth",
+    "City":"Perth",
+    "Station_Spacing":1.47,
+    "Speed":32.7,
+    "Type":"Urban"
+  },
+  {
+    "Line":"Ferny Grove-Roma Street",
+    "City":"Brisbane",
+    "Station_Spacing":1.2,
+    "Speed":29.0,
+    "Type":"Urban"
+  }
+]

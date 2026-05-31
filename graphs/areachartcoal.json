@@ -1,0 +1,115 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": "container",
+  "height": 400,
+  "config": {
+    "background": "transparent",
+    "view": {
+      "stroke": null
+    },
+    "font": "Libre Franklin, sans-serif"
+  },
+  "data": {
+    "url": "../data/coal_data.json"
+  },
+  "transform": [
+    {
+      "calculate": "datum.Area === 'Newcastle' ? 1 : datum.Area === 'Hay Point' ? 2 : datum.Area === 'Gladstone' ? 3 : datum.Area === 'Abbot Point' ? 4 : 5",
+      "as": "stack_order"
+    }
+  ],
+  "params": [
+    {
+      "name": "portHover",
+      "select": {
+        "type": "point",
+        "fields": ["Area"],
+        "on": "pointerover",
+        "clear": "pointerout"
+      }
+    }
+  ],
+  "mark": {
+    "type": "area",
+    "interpolate": "monotone",
+    "line": {
+      "color": "#0d1117",
+      "size": 1.5
+    },
+    "cursor": "pointer"
+  },
+  "encoding": {
+    "x": {
+      "field": "Year",
+      "type": "ordinal",
+      "axis": {
+        "labelFontSize": 13,
+        "titleFontSize": 14,
+        "labelColor": "#ccd",
+        "domainColor": "#444",
+        "grid": true,
+        "ticks": false,
+        "labelAngle": 0,
+        "labelPadding": 10,
+        "titleColor": "#aab",
+        "title": "Year",
+        "titlePadding": 10
+      }
+    },
+    "y": {
+      "field": "Value",
+      "type": "quantitative",
+      "stack": "zero",
+      "axis": {
+        "labelFontSize": 13,
+        "titleFontSize": 14,
+        "labelColor": "#94a3b8",
+        "gridColor": "#1e293b",
+        "domainColor": "#334155",
+        "titleColor": "#aab",
+        "title": "Total Exports (Million Tonnes)",
+        "titlePadding": 10
+      }
+    },
+    "color": {
+      "field": "Area",
+      "type": "nominal",
+      "scale": {
+        "domain": ["Newcastle", "Hay Point", "Gladstone", "Abbot Point", "Brisbane"],
+        "range": ["#E69F00", "#56B4E9", "#009E73", "#F0E442", "#CC79A7"]
+      },
+      "legend": {
+        "orient": "top",
+        "labelColor": "#ccd",
+        "titleColor": "#aab",
+        "fillColor": "transparent",
+        "strokeColor": "transparent",
+        "labelFont": "Libre Franklin, sans-serif",
+        "labelFontSize": 12,
+        "title": null,
+        "symbolType": "square",
+        "symbolSize": 150,
+        "direction": "horizontal",
+        "offset": 10
+      }
+    },
+    "order": {
+      "field": "stack_order",
+      "type": "quantitative",
+      "sort": "ascending"
+    },
+    "opacity": {
+      "condition": {
+        "param": "portHover",
+        "empty": true,
+        "value": 0.95
+      },
+      "value": 0.15
+    },
+    "tooltip": [
+      { "field": "Year", "title": "Year:"},
+      { "field": "Area", "title": "Export Port:"},
+      { "field": "Value", "title": "Volume (Million Tonnes):", "format": ".2f"}
+    ]
+  }
+}

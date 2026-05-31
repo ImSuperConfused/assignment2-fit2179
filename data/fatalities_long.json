@@ -1,0 +1,522 @@
+[
+  {
+    "year": 2012,
+    "state": "ACT",
+    "fatalities": null
+  },
+  {
+    "year": 2012,
+    "state": "NSW",
+    "fatalities": 3
+  },
+  {
+    "year": 2012,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2012,
+    "state": "QLD",
+    "fatalities": 7
+  },
+  {
+    "year": 2012,
+    "state": "SA",
+    "fatalities": 1
+  },
+  {
+    "year": 2012,
+    "state": "TAS",
+    "fatalities": 0
+  },
+  {
+    "year": 2012,
+    "state": "VIC",
+    "fatalities": 10
+  },
+  {
+    "year": 2012,
+    "state": "WA",
+    "fatalities": 2
+  },
+  {
+    "year": 2013,
+    "state": "ACT",
+    "fatalities": null
+  },
+  {
+    "year": 2013,
+    "state": "NSW",
+    "fatalities": 1
+  },
+  {
+    "year": 2013,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2013,
+    "state": "QLD",
+    "fatalities": 0
+  },
+  {
+    "year": 2013,
+    "state": "SA",
+    "fatalities": 1
+  },
+  {
+    "year": 2013,
+    "state": "TAS",
+    "fatalities": 0
+  },
+  {
+    "year": 2013,
+    "state": "VIC",
+    "fatalities": 5
+  },
+  {
+    "year": 2013,
+    "state": "WA",
+    "fatalities": 1
+  },
+  {
+    "year": 2014,
+    "state": "ACT",
+    "fatalities": 0
+  },
+  {
+    "year": 2014,
+    "state": "NSW",
+    "fatalities": 1
+  },
+  {
+    "year": 2014,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2014,
+    "state": "QLD",
+    "fatalities": null
+  },
+  {
+    "year": 2014,
+    "state": "SA",
+    "fatalities": 0
+  },
+  {
+    "year": 2014,
+    "state": "TAS",
+    "fatalities": 1
+  },
+  {
+    "year": 2014,
+    "state": "VIC",
+    "fatalities": 2
+  },
+  {
+    "year": 2014,
+    "state": "WA",
+    "fatalities": null
+  },
+  {
+    "year": 2015,
+    "state": "ACT",
+    "fatalities": 0
+  },
+  {
+    "year": 2015,
+    "state": "NSW",
+    "fatalities": 3
+  },
+  {
+    "year": 2015,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2015,
+    "state": "QLD",
+    "fatalities": null
+  },
+  {
+    "year": 2015,
+    "state": "SA",
+    "fatalities": 1
+  },
+  {
+    "year": 2015,
+    "state": "TAS",
+    "fatalities": 0
+  },
+  {
+    "year": 2015,
+    "state": "VIC",
+    "fatalities": 0
+  },
+  {
+    "year": 2015,
+    "state": "WA",
+    "fatalities": 0
+  },
+  {
+    "year": 2016,
+    "state": "ACT",
+    "fatalities": 0
+  },
+  {
+    "year": 2016,
+    "state": "NSW",
+    "fatalities": 1
+  },
+  {
+    "year": 2016,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2016,
+    "state": "QLD",
+    "fatalities": null
+  },
+  {
+    "year": 2016,
+    "state": "SA",
+    "fatalities": 0
+  },
+  {
+    "year": 2016,
+    "state": "TAS",
+    "fatalities": 0
+  },
+  {
+    "year": 2016,
+    "state": "VIC",
+    "fatalities": 3
+  },
+  {
+    "year": 2016,
+    "state": "WA",
+    "fatalities": 3
+  },
+  {
+    "year": 2017,
+    "state": "ACT",
+    "fatalities": 0
+  },
+  {
+    "year": 2017,
+    "state": "NSW",
+    "fatalities": 3
+  },
+  {
+    "year": 2017,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2017,
+    "state": "QLD",
+    "fatalities": 2
+  },
+  {
+    "year": 2017,
+    "state": "SA",
+    "fatalities": 0
+  },
+  {
+    "year": 2017,
+    "state": "TAS",
+    "fatalities": 0
+  },
+  {
+    "year": 2017,
+    "state": "VIC",
+    "fatalities": 2
+  },
+  {
+    "year": 2017,
+    "state": "WA",
+    "fatalities": 1
+  },
+  {
+    "year": 2018,
+    "state": "ACT",
+    "fatalities": 0
+  },
+  {
+    "year": 2018,
+    "state": "NSW",
+    "fatalities": 3
+  },
+  {
+    "year": 2018,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2018,
+    "state": "QLD",
+    "fatalities": 1
+  },
+  {
+    "year": 2018,
+    "state": "SA",
+    "fatalities": 0
+  },
+  {
+    "year": 2018,
+    "state": "TAS",
+    "fatalities": 0
+  },
+  {
+    "year": 2018,
+    "state": "VIC",
+    "fatalities": 2
+  },
+  {
+    "year": 2018,
+    "state": "WA",
+    "fatalities": 0
+  },
+  {
+    "year": 2019,
+    "state": "ACT",
+    "fatalities": 0
+  },
+  {
+    "year": 2019,
+    "state": "NSW",
+    "fatalities": 7
+  },
+  {
+    "year": 2019,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2019,
+    "state": "QLD",
+    "fatalities": 0
+  },
+  {
+    "year": 2019,
+    "state": "SA",
+    "fatalities": 1
+  },
+  {
+    "year": 2019,
+    "state": "TAS",
+    "fatalities": 0
+  },
+  {
+    "year": 2019,
+    "state": "VIC",
+    "fatalities": 3
+  },
+  {
+    "year": 2019,
+    "state": "WA",
+    "fatalities": 1
+  },
+  {
+    "year": 2020,
+    "state": "ACT",
+    "fatalities": 0
+  },
+  {
+    "year": 2020,
+    "state": "NSW",
+    "fatalities": 1
+  },
+  {
+    "year": 2020,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2020,
+    "state": "QLD",
+    "fatalities": 0
+  },
+  {
+    "year": 2020,
+    "state": "SA",
+    "fatalities": 4
+  },
+  {
+    "year": 2020,
+    "state": "TAS",
+    "fatalities": 0
+  },
+  {
+    "year": 2020,
+    "state": "VIC",
+    "fatalities": 2
+  },
+  {
+    "year": 2020,
+    "state": "WA",
+    "fatalities": 2
+  },
+  {
+    "year": 2021,
+    "state": "ACT",
+    "fatalities": 0
+  },
+  {
+    "year": 2021,
+    "state": "NSW",
+    "fatalities": 3
+  },
+  {
+    "year": 2021,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2021,
+    "state": "QLD",
+    "fatalities": 1
+  },
+  {
+    "year": 2021,
+    "state": "SA",
+    "fatalities": 1
+  },
+  {
+    "year": 2021,
+    "state": "TAS",
+    "fatalities": 0
+  },
+  {
+    "year": 2021,
+    "state": "VIC",
+    "fatalities": 3
+  },
+  {
+    "year": 2021,
+    "state": "WA",
+    "fatalities": 2
+  },
+  {
+    "year": 2022,
+    "state": "ACT",
+    "fatalities": 0
+  },
+  {
+    "year": 2022,
+    "state": "NSW",
+    "fatalities": 3
+  },
+  {
+    "year": 2022,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2022,
+    "state": "QLD",
+    "fatalities": 2
+  },
+  {
+    "year": 2022,
+    "state": "SA",
+    "fatalities": 3
+  },
+  {
+    "year": 2022,
+    "state": "TAS",
+    "fatalities": 1
+  },
+  {
+    "year": 2022,
+    "state": "VIC",
+    "fatalities": 4
+  },
+  {
+    "year": 2022,
+    "state": "WA",
+    "fatalities": 0
+  },
+  {
+    "year": 2023,
+    "state": "ACT",
+    "fatalities": 0
+  },
+  {
+    "year": 2023,
+    "state": "NSW",
+    "fatalities": 3
+  },
+  {
+    "year": 2023,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2023,
+    "state": "QLD",
+    "fatalities": 1
+  },
+  {
+    "year": 2023,
+    "state": "SA",
+    "fatalities": 4
+  },
+  {
+    "year": 2023,
+    "state": "TAS",
+    "fatalities": 0
+  },
+  {
+    "year": 2023,
+    "state": "VIC",
+    "fatalities": 6
+  },
+  {
+    "year": 2023,
+    "state": "WA",
+    "fatalities": 1
+  },
+  {
+    "year": 2024,
+    "state": "ACT",
+    "fatalities": 0
+  },
+  {
+    "year": 2024,
+    "state": "NSW",
+    "fatalities": 12
+  },
+  {
+    "year": 2024,
+    "state": "NT",
+    "fatalities": 0
+  },
+  {
+    "year": 2024,
+    "state": "QLD",
+    "fatalities": 1
+  },
+  {
+    "year": 2024,
+    "state": "SA",
+    "fatalities": 3
+  },
+  {
+    "year": 2024,
+    "state": "TAS",
+    "fatalities": 0
+  },
+  {
+    "year": 2024,
+    "state": "VIC",
+    "fatalities": 6
+  },
+  {
+    "year": 2024,
+    "state": "WA",
+    "fatalities": 0
+  }
+]

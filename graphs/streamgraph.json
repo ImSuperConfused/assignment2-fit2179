@@ -1,0 +1,102 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": "container",
+  "height": 400,
+  "config": {
+    "background": "transparent",
+    "view": { "stroke": null },
+    "font": "Courier Prime, monospace",
+    "axis": {
+      "domainColor": "#334155",
+      "gridColor": "#1e293b",
+      "tickColor": "#334155",
+      "labelColor": "#94a3b8",
+      "titleColor": "#aab",
+      "titleFontWeight": 700
+    }
+  },
+  "data": {
+    "url": "../data/Book1_December_Only.json"
+  },
+  "transform": [
+    {
+      "fold": [
+        "Value of work done ;  Roads, highways and subdivisions ;",
+        "Value of work done ;  Railways ;",
+        "Value of work done ;  Electricity generation, transmission and distribution ;",
+        "Value of work done ;  Oil, gas, coal and other minerals ;",
+        "Value of work done ;  Water storage and supply ;",
+        "Value of work done ;  Telecommunications ;"
+      ],
+      "as": ["Raw_Sector", "Raw_Value"]
+    },
+    {
+      "calculate": "datum.Raw_Value / 1000000",
+      "as": "Value_Billion"
+    },
+    {
+      "calculate": "replace(replace(datum.Raw_Sector, 'Value of work done ;  ', ''), ' ;', '')",
+      "as": "Clean_Sector"
+    }
+  ],
+  "mark": {
+    "type": "area",
+    "interpolate": "monotone",
+    "line": { "color": "#0d1117", "strokeWidth": 1 },
+    "opacity": 0.85
+  },
+  "encoding": {
+    "x": {
+      "field": "Year",
+      "type": "quantitative",
+      "axis": {
+        "labelFontSize": 13,
+        "titleFontSize": 14,
+        "format": "d",
+        "tickCount": 8,
+        "grid": true
+      }
+    },
+    "y": {
+      "field": "Value_Billion",
+      "type": "quantitative",
+      "stack": "center",
+      "axis": {
+        "labelFontSize": 13,
+        "titleFontSize": 14,
+        "title": "Billion AUD$",
+        "grid": true,
+        "labels": false,
+        "ticks": false
+      }
+    },
+    "color": {
+      "field": "Clean_Sector",
+      "type": "nominal",
+      "title": "Major Sectors",
+      "scale": {
+        "domain": [
+          "Oil, gas, coal and other minerals",
+          "Roads, highways and subdivisions",
+          "Railways",
+          "Electricity generation, transmission and distribution",
+          "Water storage and supply",
+          "Telecommunications"
+        ],
+        "range": ["#e05252", "#d4a04a", "#7bd4a0", "#a04ad4", "#4a9fd4", "#94a3b8"]
+      },
+      "legend": {
+        "orient": "bottom",
+        "titleColor": "#ccd",
+        "labelColor": "#94a3b8",
+        "columns": 2,
+        "labelLimit": 300
+      }
+    },
+    "tooltip": [
+      { "field": "Year", "title": "Year" },
+      { "field": "Clean_Sector", "title": "Sector" },
+      { "field": "Value_Billion", "title": "Work Done (Billion)", "format": "$,.2f" }
+    ]
+  }
+}

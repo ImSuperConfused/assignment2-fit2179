@@ -1,0 +1,112 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": "container",
+  "height": 550,
+  "config": {
+    "background": "transparent",
+    "view": {"stroke": null},
+    "axis": {
+      "domainColor": "#2d4057",
+      "gridColor": "#1a2332",
+      "tickColor": "#2d4057",
+      "labelColor": "#aab",
+      "titleColor": "#ccd",
+      "labelFont": "Courier Prime, monospace",
+      "titleFont": "Courier Prime, monospace"
+    }
+  },
+  "data": {
+    "url": "../data/network_speeds.json"
+  },
+  "encoding": {
+    "y": {
+      "field": "Line",
+      "type": "nominal",
+      "sort": {"field": "Speed", "op": "max", "order": "descending"},
+      "axis": {"title": null, "labelFontSize": 12}
+    }
+  },
+  "layer": [
+    {
+      "mark": {
+        "type": "rule",
+        "strokeWidth": 3,
+        "strokeCap": "round",
+        "opacity": 0.7
+      },
+      "encoding": {
+        "x": {
+          "field": "Station_Spacing",
+          "type": "quantitative"
+        },
+        "x2": {"value": 0},
+        "color": {
+          "field": "Type",
+          "type": "nominal",
+          "scale": {
+            "domain": ["Urban", "Regional"],
+            "range": ["#4a9fd4", "#e05252"]
+          },
+          "legend": {
+            "title": "Network Type",
+            "orient": "bottom-right",
+            "titleColor": "#ccd",
+            "labelColor": "#aab",
+            "titleFont": "Courier Prime, monospace",
+            "labelFont": "Courier Prime, monospace"
+          }
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "point",
+        "size": 80,
+        "shape": "circle",
+        "strokeWidth": 2,
+        "filled": false,
+        "opacity": 0.45
+      },
+      "encoding": {
+        "x": {
+          "field": "Station_Spacing",
+          "type": "quantitative"
+        },
+        "color": {"value": "#ffffff"},
+        "tooltip": [
+          {"field": "Line", "title": "Route"},
+          {"field": "Station_Spacing", "title": "Avg Gap (km)", "format": ".1f"}
+        ]
+      }
+    },
+    {
+      "mark": {
+        "type": "point",
+        "filled": true,
+        "size": 160,
+        "opacity": 1,
+        "stroke": "#0d1117",
+        "strokeWidth": 1.5
+      },
+      "encoding": {
+        "x": {
+          "field": "Speed",
+          "type": "quantitative",
+          "title": "Journey Speed (km/h) & Station Spacing (km)",
+          "scale": {"domain": [0, 100]}
+        },
+        "color": {
+          "field": "Type",
+          "type": "nominal"
+        },
+        "tooltip": [
+          {"field": "Line", "title": "Route"},
+          {"field": "City", "title": "City/Region"},
+          {"field": "Type", "title": "Network"},
+          {"field": "Speed", "title": "Avg Speed (km/h)", "format": ".1f"},
+          {"field": "Station_Spacing", "title": "Avg Gap (km)", "format": ".1f"}
+        ]
+      }
+    }
+  ]
+}

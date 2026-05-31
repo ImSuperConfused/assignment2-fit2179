@@ -1,0 +1,212 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "width": "container",
+  "height": 520,
+  "config": {
+    "background": "#0d1117",
+    "view": { "stroke": null }
+  },
+  "data": {
+    "url": "../data/australian_city_transit_all_years.json",
+    "format": { "type": "json" }
+  },
+  "layer": [
+    {
+      "params": [
+        {
+          "name": "citySelect",
+          "select": { "type": "point", "fields": ["city"] },
+          "bind": "legend"
+        }
+      ],
+      "mark": {
+        "type": "line",
+        "strokeWidth": 3.5,
+        "interpolate": "monotone"
+      },
+      "encoding": {
+        "x": {
+          "field": "pop_m",
+          "type": "quantitative",
+          "title": "State Population (Millions)",
+          "scale": { "zero": false },
+          "axis": {
+            "tickCount": 20,
+            "labelFontSize": 13,
+            "titleFontSize": 14,
+            "gridColor": "#2d4057",
+            "labelColor": "#ccd",
+            "titleColor": "#aab",
+            "labelFont": "Courier Prime, monospace",
+            "titleFont": "Courier Prime, monospace",
+            "tickColor": "#2d4057"
+          }
+        },
+        "y": {
+          "field": "passengers_m",
+          "type": "quantitative",
+          "title": "Annual Transit Patronage (Millions)",
+          "scale": { "zero": false },
+          "axis": {
+            "tickCount": 20,
+            "labelFontSize": 13,
+            "titleFontSize": 14,
+            "gridColor": "#2d4057",
+            "labelColor": "#ccd",
+            "titleColor": "#aab",
+            "labelFont": "Courier Prime, monospace",
+            "titleFont": "Courier Prime, monospace",
+            "tickColor": "#2d4057"
+          }
+        },
+        "color": {
+          "field": "city",
+          "type": "nominal",
+          "scale": {
+            "domain": ["Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
+            "range": ["#f0a500", "#4a9fd4", "#7bd4a0", "#e05252", "#c47adb"]
+          },
+          "legend": {
+            "orient": "top-left",
+            "labelColor": "#ccd",
+            "titleColor": "#aab",
+            "title": "State",
+            "titleFont": "Courier Prime, monospace",
+            "labelFont": "Courier Prime, monospace",
+            "symbolStrokeWidth": 3,
+            "padding": 10,
+            "fillColor": "#0d1117",
+            "strokeColor": "#2d4057"
+          }
+        },
+        "order": { "field": "Year", "type": "quantitative" },
+        "opacity": {
+          "condition": { "param": "citySelect", "empty": true, "value": 0.85 },
+          "value": 0.15
+        }
+      }
+    },
+    {
+      "mark": {
+        "type": "circle",
+        "size": 75,
+        "filled": true
+      },
+      "encoding": {
+        "x": { "field": "pop_m", "type": "quantitative" },
+        "y": { "field": "passengers_m", "type": "quantitative" },
+        "color": { "field": "city", "type": "nominal" },
+        "opacity": {
+          "condition": { "param": "citySelect", "empty": true, "value": 0.95 },
+          "value": 0.15
+        },
+        "tooltip": [
+          { "field": "Year", "type": "quantitative", "title": "Year", "format": "d" },
+          { "field": "city", "type": "nominal", "title": "City" },
+          { "field": "passengers_m", "type": "quantitative", "title": "Patronage (M)", "format": ".1f" },
+          { "field": "pop_m", "type": "quantitative", "title": "Population (M)", "format": ".2f" }
+        ]
+      }
+    },
+    {
+      "transform": [
+        {
+          "filter": "datum.Year === 2010 || datum.Year === 2018 || datum.Year === 2021 || datum.Year === 2023"
+        }
+      ],
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "dx": 8,
+        "dy": -2,
+        "fontSize": 11,
+        "font": "Courier Prime, monospace",
+        "color": "#ccd"
+      },
+      "encoding": {
+        "x": { "field": "pop_m", "type": "quantitative" },
+        "y": { "field": "passengers_m", "type": "quantitative" },
+        "text": { "field": "Year", "type": "quantitative", "format": "d" },
+        "opacity": {
+          "condition": { "param": "citySelect", "empty": true, "value": 0.9 },
+          "value": 0.05
+        }
+      }
+    },
+    {
+      "transform": [
+        { "filter": "datum.city === 'Perth' && datum.Year === 2023" },
+        { "calculate": "datum.passengers_m + 15", "as": "box_bottom" }
+      ],
+      "mark": {
+        "type": "rule",
+        "stroke": "#e05252",
+        "strokeWidth": 2,
+        "strokeDash": [4, 4]
+      },
+      "encoding": {
+        "x": { "field": "pop_m", "type": "quantitative" },
+        "y": { "field": "passengers_m", "type": "quantitative" },
+        "y2": { "field": "box_bottom" },
+        "opacity": {
+          "condition": { "param": "citySelect", "empty": true, "value": 0.95 },
+          "value": 0.05
+        }
+      }
+    },
+    {
+      "transform": [
+        { "filter": "datum.city === 'Perth' && datum.Year === 2023" },
+        { "calculate": "datum.pop_m - 0.08", "as": "box_x" },
+        { "calculate": "datum.pop_m + 1.6", "as": "box_x2" },
+        { "calculate": "datum.passengers_m + 15", "as": "box_y" },
+        { "calculate": "datum.passengers_m + 50", "as": "box_y2" }
+      ],
+      "mark": {
+        "type": "rect",
+        "fill": "#0d1117",
+        "stroke": "#2d4057",
+        "strokeWidth": 1.5,
+        "cornerRadius": 4
+      },
+      "encoding": {
+        "x": { "field": "box_x", "type": "quantitative" },
+        "x2": { "field": "box_x2" },
+        "y": { "field": "box_y", "type": "quantitative" },
+        "y2": { "field": "box_y2" },
+        "opacity": {
+          "condition": { "param": "citySelect", "empty": true, "value": 0.95 },
+          "value": 0.05
+        }
+      }
+    },
+    {
+      "transform": [
+        { "filter": "datum.city === 'Perth' && datum.Year === 2023" },
+        { "calculate": "datum.pop_m + 0.02", "as": "text_x" },
+        { "calculate": "datum.passengers_m + 40", "as": "text_y" }
+      ],
+      "mark": {
+        "type": "text",
+        "align": "left",
+        "baseline": "middle",
+        "fontSize": 12,
+        "font": "Courier Prime, monospace",
+        "lineHeight": 17,
+        "color": "#e05252",
+        "text": [
+          "METRONET expansion pushes",
+          "Perth to new patronage highs."
+        ]
+      },
+      "encoding": {
+        "x": { "field": "text_x", "type": "quantitative" },
+        "y": { "field": "text_y", "type": "quantitative" },
+        "opacity": {
+          "condition": { "param": "citySelect", "empty": true, "value": 0.95 },
+          "value": 0.05
+        }
+      }
+    }
+  ]
+}
