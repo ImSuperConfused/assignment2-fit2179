@@ -351,6 +351,7 @@
       ];
 
       // Loop through and load charts individually
+      // Loop through and load charts individually
       visualisations.forEach(([selector, spec, customOpts = {}]) => {
         const finalOpts = { ...OPT, ...customOpts };
         const chartElement = document.querySelector(selector);
@@ -358,6 +359,8 @@
         // 1. Turn on the spinner before we start downloading the chart data
         if (chartElement) {
           chartElement.classList.add('chart-loading');
+          // INJECT THE SPINNER HTML ELEMENT HERE
+          chartElement.innerHTML = '<div class="chart-spinner"></div>'; 
         }
 
         vegaEmbed(selector, spec, finalOpts)
@@ -366,6 +369,9 @@
             if (chartElement) {
               chartElement.classList.remove('chart-loading');
               
+              // Note: vegaEmbed automatically replaces the innerHTML, 
+              // completely clearing out our .chart-spinner for us.
+
               // ---------------------------------------------------------
               // NETWORK MAP FIX: Eliminate typing lag cleanly
               // ---------------------------------------------------------
