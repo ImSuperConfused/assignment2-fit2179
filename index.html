@@ -355,88 +355,66 @@
       visualisations.forEach(([selector, spec, customOpts = {}]) => {
         const finalOpts = { ...OPT, ...customOpts };
         const chartElement = document.querySelector(selector);
-        
-        // 1. Turn on the spinner before we start downloading the chart data
-        if (chartElement) {
-          chartElement.classList.add('chart-loading');
-          // INJECT THE SPINNER HTML ELEMENT HERE
-          chartElement.innerHTML = '<div class="chart-spinner"></div>'; 
-        }
 
         vegaEmbed(selector, spec, finalOpts)
           .then(result => {
-            // 2. Turn off the spinner the exact moment it finishes rendering
-            if (chartElement) {
-              chartElement.classList.remove('chart-loading');
-              
-              // Note: vegaEmbed automatically replaces the innerHTML, 
-              // completely clearing out our .chart-spinner for us.
-
-              // ---------------------------------------------------------
-              // NETWORK MAP FIX: Eliminate typing lag cleanly
-              // ---------------------------------------------------------
-              if (selector === "#viz-network-map") {
-                const container = chartElement.parentElement.querySelector('.vega-bindings');
-                if (container) {
-                  const inputs = container.querySelectorAll('input');
+            // ---------------------------------------------------------
+            // NETWORK MAP FIX: Eliminate typing lag cleanly
+            // ---------------------------------------------------------
+            if (selector === "#viz-network-map" && chartElement) {
+              const container = chartElement.parentElement.querySelector('.vega-bindings');
+              if (container) {
+                const inputs = container.querySelectorAll('input');
+                
+                inputs.forEach(input => {
+                  // 1. Catch 'input' in capture phase & kill propagation so Vega doesn't lag on every keystroke
+                  input.addEventListener('input', (e) => {
+                    e.stopImmediatePropagation();
+                  }, true);
                   
-                  inputs.forEach(input => {
-                    // 1. Catch 'input' in capture phase & kill propagation so Vega doesn't lag on every keystroke
-                    input.addEventListener('input', (e) => {
-                      e.stopImmediatePropagation();
-                    }, true);
-                    
-                    // 2. Update Vega safely when pressing Enter
-                    input.addEventListener('keydown', (e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault(); // Stop any accidental form/page resets
-                        const signalName = input.getAttribute('name');
-                        if (signalName) {
-                          result.view.signal(signalName, +input.value).run();
-                        }
-                      }
-                    });
-
-                    // 3. Also update if they change the value and click outside the box (blur)
-                    input.addEventListener('change', (e) => {
+                  // 2. Update Vega safely when pressing Enter
+                  input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault(); // Stop any accidental form/page resets
                       const signalName = input.getAttribute('name');
                       if (signalName) {
                         result.view.signal(signalName, +input.value).run();
                       }
-                    });
+                    }
                   });
 
-                  // B. Inject the Reset Button safely
-                  if (!container.querySelector('.reset-btn')) {
-                    const btn = document.createElement('button');
-                    btn.className = 'reset-btn';
-                    btn.textContent = 'Reset Defaults';
-                    btn.style.cssText = 'margin-left:12px; padding:3px 10px; background:#2d4057; color:#e8edf2; border:1px solid #3d5066; border-radius:4px; cursor:pointer; font-family:inherit; font-size:12px;';
-                    
-                    btn.onclick = () => {
-                      const currentInputs = container.querySelectorAll('input');
-                      if (currentInputs[0]) currentInputs[0].value = '0';
-                      if (currentInputs[1]) currentInputs[1].value = '360';
-                      result.view.signal('minLength', 0).signal('maxLength', 360).run();
-                    };
-                    
-                    container.appendChild(btn);
-                  }
+                  // 3. Also update if they change the value and click outside the box (blur)
+                  input.addEventListener('change', (e) => {
+                    const signalName = input.getAttribute('name');
+                    if (signalName) {
+                      result.view.signal(signalName, +input.value).run();
+                    }
+                  });
+                });
+
+                // B. Inject the Reset Button safely
+                if (!container.querySelector('.reset-btn')) {
+                  const btn = document.createElement('button');
+                  btn.className = 'reset-btn';
+                  btn.textContent = 'Reset Defaults';
+                  btn.style.cssText = 'margin-left:12px; padding:3px 10px; background:#2d4057; color:#e8edf2; border:1px solid #3d5066; border-radius:4px; cursor:pointer; font-family:inherit; font-size:12px;';
+                  
+                  btn.onclick = () => {
+                    const currentInputs = container.querySelectorAll('input');
+                    if (currentInputs[0]) currentInputs[0].value = '0';
+                    if (currentInputs[1]) currentInputs[1].value = '360';
+                    result.view.signal('minLength', 0).signal('maxLength', 360).run();
+                  };
+                  
+                  container.appendChild(btn);
                 }
               }
             }
             console.log(`✅ Successfully rendered: ${selector}`);
           })
           .catch(error => {
-            // 3. Turn off the spinner if it crashes, and show the error box
-            if (chartElement) {
-              chartElement.classList.remove('chart-loading');
-              chartElement.innerHTML = `
-                <div style="color:#e05252; padding:1.5rem; font-family:monospace; background:#fff8f8; border:1px solid #ffc6c6; border-radius:6px;">
-                  <strong>Chart Error:</strong><br>
-                  ${error.message}
-                </div>`;
-            }
+            // Simply log the error to the console without altering the DOM
+            console.error(`❌ Error rendering ${selector}:`, error);
           });
       });
 
