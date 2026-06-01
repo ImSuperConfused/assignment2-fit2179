@@ -39,22 +39,29 @@ body {
 .chart-loading {
   position: relative;
   min-height: 300px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   background: var(--surface2);
   border-radius: var(--radius);
 }
 
-/* This generates the spinner for charts without needing extra HTML */
-.chart-loading::after {
-  content: "";
+/* Target an explicit inner element to guarantee it stays on top */
+.chart-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 40px;
   height: 40px;
   border: 4px solid var(--border);
   border-top-color: var(--amber);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  z-index: 10; /* Forces it above incoming canvas tags */
+  pointer-events: none;
+}
+
+@keyframes spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
 @keyframes spin {
