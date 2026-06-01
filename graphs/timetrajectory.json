@@ -7,9 +7,27 @@
     "view": { "stroke": null }
   },
   "data": {
-    "url": "../data/australian_city_transit_all_years.json",
+    "url": "data/australian_city_transit_all_years.json",
     "format": { "type": "json" }
   },
+  "params": [
+    {
+      "name": "yearLimit",
+      "value": 2023,
+      "bind": {
+        "input": "range",
+        "min": 2010,
+        "max": 2023,
+        "step": 1,
+        "name": "Year (2023 = All) Select: "
+      }
+    }
+  ],
+  "transform": [
+    {
+      "filter": "datum.Year <= yearLimit"
+    }
+  ],
   "layer": [
     {
       "params": [
@@ -29,7 +47,10 @@
           "field": "pop_m",
           "type": "quantitative",
           "title": "State Population (Millions)",
-          "scale": { "zero": false },
+          "scale": { 
+            "zero": true,
+            "domain": [0, 9] 
+          },
           "axis": {
             "tickCount": 20,
             "labelFontSize": 13,
@@ -46,7 +67,10 @@
           "field": "passengers_m",
           "type": "quantitative",
           "title": "Annual Transit Patronage (Millions)",
-          "scale": { "zero": false },
+          "scale": { 
+            "zero": true,
+            "domain": [0, 400]
+          },
           "axis": {
             "tickCount": 20,
             "labelFontSize": 13,
@@ -73,6 +97,8 @@
             "title": "State",
             "titleFont": "Courier Prime, monospace",
             "labelFont": "Courier Prime, monospace",
+            "titleAnchor":"middle",
+            "titleAlign": "center",
             "symbolStrokeWidth": 3,
             "padding": 10,
             "fillColor": "#0d1117",
@@ -89,7 +115,29 @@
     {
       "mark": {
         "type": "circle",
-        "size": 75,
+        "size": 80,
+        "color": "transparent"
+      },
+      "encoding": {
+        "x": { "field": "pop_m", "type": "quantitative" },
+        "y": { "field": "passengers_m", "type": "quantitative" },
+        "tooltip": [
+          { "field": "Year", "type": "quantitative", "title": "Year", "format": "d" },
+          { "field": "city", "type": "nominal", "title": "City" },
+          { "field": "passengers_m", "type": "quantitative", "title": "Patronage (M)", "format": ".1f" },
+          { "field": "pop_m", "type": "quantitative", "title": "Population (M)", "format": ".2f" }
+        ]
+      }
+    },
+    {
+      "transform": [
+        {
+          "filter": "datum.Year === 2010 || datum.Year === 2018 || datum.Year === 2021 || datum.Year === 2023"
+        }
+      ],
+      "mark": {
+        "type": "circle",
+        "size": 40,
         "filled": true
       },
       "encoding": {
@@ -116,9 +164,15 @@
       ],
       "mark": {
         "type": "text",
-        "align": "left",
-        "dx": 8,
-        "dy": -2,
+        "align": {
+          "expr": "datum.Year === 2010 || datum.Year === 2021 ? 'right' : datum.Year === 2018 ? 'center' : 'left'"
+        },
+        "dx": {
+          "expr": "datum.Year === 2010 || datum.Year === 2021 ? -10 : datum.Year === 2018 ? 0 : 10"
+        },
+        "dy": {
+          "expr": "datum.Year === 2018 ? -12 : datum.Year === 2010 ? 8 : 2"
+        },
         "fontSize": 11,
         "font": "Courier Prime, monospace",
         "color": "#ccd"
@@ -157,10 +211,10 @@
     {
       "transform": [
         { "filter": "datum.city === 'Perth' && datum.Year === 2023" },
-        { "calculate": "datum.pop_m - 0.08", "as": "box_x" },
-        { "calculate": "datum.pop_m + 1.6", "as": "box_x2" },
-        { "calculate": "datum.passengers_m + 15", "as": "box_y" },
-        { "calculate": "datum.passengers_m + 50", "as": "box_y2" }
+        { "calculate": "datum.pop_m - 0.05", "as": "box_x" },
+        { "calculate": "datum.pop_m + 2", "as": "box_x2" },
+        { "calculate": "datum.passengers_m + 10", "as": "box_y" },
+        { "calculate": "datum.passengers_m + 45", "as": "box_y2" }
       ],
       "mark": {
         "type": "rect",
@@ -184,7 +238,7 @@
       "transform": [
         { "filter": "datum.city === 'Perth' && datum.Year === 2023" },
         { "calculate": "datum.pop_m + 0.02", "as": "text_x" },
-        { "calculate": "datum.passengers_m + 40", "as": "text_y" }
+        { "calculate": "datum.passengers_m + 35", "as": "text_y" }
       ],
       "mark": {
         "type": "text",

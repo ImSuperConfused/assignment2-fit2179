@@ -3,7 +3,7 @@
   "width": "container",
   "height": 400,
   "config": {
-    "background": "transparent",
+    "background": "#0d1117",
     "view": { "stroke": null },
     "font": "Courier Prime, monospace",
     "axis": {
@@ -15,88 +15,225 @@
       "titleFontWeight": 700
     }
   },
-  "data": {
-    "url": "../data/Book1_December_Only.json"
-  },
-  "transform": [
+  "params": [
     {
-      "fold": [
-        "Value of work done ;  Roads, highways and subdivisions ;",
-        "Value of work done ;  Railways ;",
-        "Value of work done ;  Electricity generation, transmission and distribution ;",
-        "Value of work done ;  Oil, gas, coal and other minerals ;",
-        "Value of work done ;  Water storage and supply ;",
-        "Value of work done ;  Telecommunications ;"
-      ],
-      "as": ["Raw_Sector", "Raw_Value"]
-    },
-    {
-      "calculate": "datum.Raw_Value / 1000000",
-      "as": "Value_Billion"
-    },
-    {
-      "calculate": "replace(replace(datum.Raw_Sector, 'Value of work done ;  ', ''), ' ;', '')",
-      "as": "Clean_Sector"
+      "name": "yearLimit",
+      "value": 2024,
+      "bind": {
+        "input": "range",
+        "min": 2002,
+        "max": 2024,
+        "step": 1,
+        "name": "End Year: "
+      }
     }
   ],
-  "mark": {
-    "type": "area",
-    "interpolate": "monotone",
-    "line": { "color": "#0d1117", "strokeWidth": 1 },
-    "opacity": 0.85
-  },
-  "encoding": {
-    "x": {
-      "field": "Year",
-      "type": "quantitative",
-      "axis": {
-        "labelFontSize": 13,
-        "titleFontSize": 14,
-        "format": "d",
-        "tickCount": 8,
-        "grid": true
-      }
-    },
-    "y": {
-      "field": "Value_Billion",
-      "type": "quantitative",
-      "stack": "center",
-      "axis": {
-        "labelFontSize": 13,
-        "titleFontSize": 14,
-        "title": "Billion AUD$",
-        "grid": true,
-        "labels": false,
-        "ticks": false
-      }
-    },
-    "color": {
-      "field": "Clean_Sector",
-      "type": "nominal",
-      "title": "Major Sectors",
-      "scale": {
-        "domain": [
-          "Oil, gas, coal and other minerals",
-          "Roads, highways and subdivisions",
-          "Railways",
-          "Electricity generation, transmission and distribution",
-          "Water storage and supply",
-          "Telecommunications"
-        ],
-        "range": ["#e05252", "#d4a04a", "#7bd4a0", "#a04ad4", "#4a9fd4", "#94a3b8"]
+  "layer": [
+    {
+      "name": "PRIMARY_STREAM_LAYER",
+      "data": {
+        "url": "data/Book1_December_Only.json"
       },
-      "legend": {
-        "orient": "bottom",
-        "titleColor": "#ccd",
-        "labelColor": "#94a3b8",
-        "columns": 2,
-        "labelLimit": 300
+      "transform": [
+        {
+          "filter": "datum.Year <= yearLimit"
+        },
+        {
+          "fold": [
+            "Value of work done ;  Roads, highways and subdivisions ;",
+            "Value of work done ;  Railways ;",
+            "Value of work done ;  Electricity generation, transmission and distribution ;",
+            "Value of work done ;  Oil, gas, coal and other minerals ;",
+            "Value of work done ;  Water storage and supply ;",
+            "Value of work done ;  Telecommunications ;"
+          ],
+          "as": ["Raw_Sector", "Raw_Value"]
+        },
+        {
+          "calculate": "datum.Raw_Value / 1000000",
+          "as": "Value_Billion"
+        },
+        {
+          "calculate": "replace(replace(datum.Raw_Sector, 'Value of work done ;  ', ''), ' ;', '')",
+          "as": "Clean_Sector"
+        }
+      ],
+      "layer": [
+        {
+          "params": [
+            {
+              "name": "sectorSelect",
+              "select": {
+                "type": "point",
+                "fields": ["Clean_Sector"]
+              },
+              "bind": "legend"
+            },
+            {
+              "name": "timelineHover",
+              "select": {
+                "type": "point",
+                "fields": ["Year"],
+                "on": "pointermove",
+                "nearest": true,
+                "clear": "pointerout"
+              }
+            }
+          ],
+          "mark": {
+            "type": "area",
+            "interpolate": "monotone",
+            "line": { "color": "#0d1117", "strokeWidth": 1 },
+            "cursor": "pointer"
+          },
+          "encoding": {
+            "x": {
+              "field": "Year",
+              "type": "quantitative",
+              "axis": {
+                "labelFontSize": 13,
+                "titleFontSize": 14,
+                "title": "Year",
+                "format": "d",
+                "tickCount": 8,
+                "grid": true
+              }
+            },
+            "y": {
+              "field": "Value_Billion",
+              "type": "quantitative",
+              "stack": "center",
+              "axis": {
+                "labelFontSize": 13,
+                "titleFontSize": 14,
+                "title": null,
+                "grid": true,
+                "labels": false,
+                "ticks": false
+              }
+            },
+            "color": {
+              "field": "Clean_Sector",
+              "type": "nominal",
+              "title": "Major Sectors",
+              "scale": {
+                "domain": [
+                  "Oil, gas, coal and other minerals",
+                  "Roads, highways and subdivisions",
+                  "Railways",
+                  "Electricity generation, transmission and distribution",
+                  "Water storage and supply",
+                  "Telecommunications"
+                ],
+                "range": ["#e05252", "#d4a04a", "#7bd4a0", "#a04ad4", "#4a9fd4", "#94a3b8"]
+              },
+              "legend": {
+                "orient": "bottom-left",
+                "titleColor": "#ccd",
+                "labelColor": "#94a3b8",
+                "columns": 1,
+                "labelLimit": 320,
+                "padding": 15,
+                "symbolStrokeWidth": 2,
+                "fillColor": "#0d1117",
+                "strokeColor": "#1e293b"
+              }
+            },
+            "opacity": {
+              "condition": {
+                "param": "sectorSelect",
+                "empty": true,
+                "value": 0.85
+              },
+              "value": 0.15
+            },
+            "tooltip": [
+              { "field": "Year", "type": "quantitative", "title": "Year:" },
+              { "field": "Clean_Sector", "type": "nominal", "title": "Major Sector:" },
+              { "field": "Value_Billion", "type": "quantitative", "title": "Work Done (Billion AUD$):", "format": "$,.2f" }
+            ]
+          }
+        },
+        {
+          "name": "interactive_crosshair",
+          "mark": {
+            "type": "rule",
+            "color": "#38bdf8",
+            "strokeWidth": 1.5,
+            "opacity": 0.5
+          },
+          "encoding": {
+            "x": {
+              "field": "Year",
+              "type": "quantitative"
+            },
+            "opacity": {
+              "condition": {
+                "param": "timelineHover",
+                "empty": false,
+                "value": 0.6
+              },
+              "value": 0
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "STATIC_ANNOTATION_LINE",
+      "transform": [
+        { "filter": "2009 <= yearLimit" }
+      ],
+      "data": {
+        "values": [{ "Year": 2009 }]
+      },
+      "mark": {
+        "type": "rule",
+        "color": "#64748b",
+        "strokeWidth": 1.5,
+        "strokeDash": [4, 4]
+      },
+      "encoding": {
+        "x": {
+          "field": "Year",
+          "type": "quantitative"
+        },
+        "y": { "datum": 22 },
+        "y2": { "datum": -22 }
       }
     },
-    "tooltip": [
-      { "field": "Year", "title": "Year" },
-      { "field": "Clean_Sector", "title": "Sector" },
-      { "field": "Value_Billion", "title": "Work Done (Billion)", "format": "$,.2f" }
-    ]
-  }
+    {
+      "name": "STATIC_ANNOTATION_TEXT",
+      "transform": [
+        { "filter": "2009 <= yearLimit" }
+      ],
+      "data": {
+        "values": [
+          {
+            "Year": 2009,
+            "text": "2008-2010: Economic stimulus drives major rail investments."
+          }
+        ]
+      },
+      "mark": {
+        "type": "text",
+        "align": "center",
+        "baseline": "bottom",
+        "dy": -8,
+        "color": "#e2e8f0",
+        "fontSize": 11,
+        "fontWeight": "bold"
+      },
+      "encoding": {
+        "x": {
+          "field": "Year",
+          "type": "quantitative"
+        },
+        "y": { "datum": 22 },
+        "text": {
+          "field": "text"
+        }
+      }
+    }
+  ]
 }

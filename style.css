@@ -1,22 +1,25 @@
 :root {
-  --bg:          #0d1117;
-  --surface:     #121920;
-  --surface2:    #1a2332;
-  --border:      #2d4057;
-  --text-main:   #e8edf2;
-  --text-muted:  #7a8fa6;
-  --text-dim:    #3d5066;
-  --amber:       #f0a500;
-  --blue:        #4a9fd4;
-  --red:         #e05252;
-  --green:       #7bd4a0;
-  --purple:      #c47adb;
-  --font-head:   'Playfair Display', Georgia, serif;
-  --font-mono:   'Courier Prime', 'Courier New', monospace;
-  --font-body:   'Libre Franklin', system-ui, sans-serif;
-  --radius:      10px;
-  --max-w:       1100px;
+  --bg: #0d1117;
+  --surface: #121920;
+  --surface2: #1a2332;
+  --border: #2d4057;
+  --text-main: #e8edf2;
+  --text-muted: #7a8fa6;
+  --text-dim: #3d5066;
+  --amber: #f0a500;
+  --blue: #4a9fd4;
+  --red: #e05252;
+  --green: #7bd4a0;
+  --purple: #c47adb;
+  --font-head: 'Playfair Display', Georgia, serif;
+  --font-mono: 'Courier Prime', 'Courier New', monospace;
+  --font-body: 'Libre Franklin', system-ui, sans-serif;
+  --radius: 10px;
+  --max-w: 1100px;
   --section-gap: 7rem;
+  --text-light: #c9d1d9;
+  --accent: #4a9fd4;
+  --white: #ffffff;
 }
 
 /* Reset */
@@ -30,6 +33,152 @@ body {
   font-size: 16px;
   line-height: 1.72;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Individual Chart Loaders */
+.chart-loading {
+  position: relative;
+  min-height: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--surface2);
+  border-radius: var(--radius);
+}
+
+/* This generates the spinner for charts without needing extra HTML */
+.chart-loading::after {
+  content: "";
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Align Vega network map inputs and reset button perfectly */
+.vega-bindings {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;      /* Vertically centers everything */
+  gap: 1rem;                /* Adds even spacing between items */
+  margin-bottom: 1rem;
+}
+
+/* Remove Vega's default chunky margins */
+.vega-bind {
+  margin-bottom: 0 !important;
+}
+
+/* Align the label text and the input box neatly */
+.vega-bind label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Style the input boxes to match your dark theme */
+.vega-bind input {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  width: 70px;
+  font-family: var(--font-mono);
+  outline: none;
+}
+
+.vega-bind input:focus {
+  border-color: var(--amber);
+}
+
+/* 1. Give the slider container room to breathe and align the text */
+.vega-bind {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+/* 2. Style the Range Track (the background line) */
+.vega-bind input[type="range"] {
+  -webkit-appearance: none; /* Removes default browser styling */
+  appearance: none;
+  width: 200px;             /* Makes the slider long enough to use easily */
+  height: 6px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  outline: none;
+  margin: 0 8px;            /* Gives the thumb space so it doesn't clip at 0 or max */
+}
+
+/* 3. Style the Range Thumb (the draggable circle) for Chrome/Safari/Edge */
+.vega-bind input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--accent); /* Uses your blue accent variable */
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--accent); /* Creates a nice ring effect */
+  transition: all 0.2s ease;
+}
+
+/* 4. Style the Range Thumb for Firefox */
+.vega-bind input[type="range"]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 0 2px var(--accent);
+  transition: all 0.2s ease;
+}
+
+/* 5. Add Hover Effects */
+.vega-bind input[type="range"]::-webkit-slider-thumb:hover {
+  background: var(--amber);
+  box-shadow: 0 0 0 2px var(--amber);
+}
+.vega-bind input[type="range"]::-moz-range-thumb:hover {
+  background: var(--amber);
+  box-shadow: 0 0 0 2px var(--amber);
+}
+
+/* 6. Style the live output number next to the slider */
+.vega-bind-value {
+  font-family: var(--font-mono);
+  color: var(--amber);
+  font-weight: bold;
+  min-width: 45px;
+}
+
+/* Style Vega dropdowns to match dark theme */
+.vega-bind select {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 0.3rem 0.5rem;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  outline: none;
+  cursor: pointer;
+}
+
+.vega-bind select:focus {
+  border-color: var(--amber);
 }
 
 /* Hero */
@@ -91,21 +240,30 @@ body {
 
 .hero-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 0.5rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
   margin-bottom: 2.5rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
+  background: var(--surface);           /* Single background */
 }
 
 .stat-item {
-  padding: 1.4rem 1rem;
-  background: var(--surface);
+  padding: 1.3rem 1rem;
   text-align: center;
   border-right: 1px solid var(--border);
+  transition: background 0.2s ease;
 }
-.stat-item:last-child { border-right: none; }
+
+.stat-item:last-child {
+  border-right: none;
+}
+
+/* Optional subtle hover accent */
+.stat-item:hover {
+  background: color-mix(in srgb, var(--surface), var(--accent) 6%);
+}
 
 .stat-number {
   display: block;
@@ -164,8 +322,19 @@ body {
   border-right: 1px solid var(--border);
   transition: color 0.2s, background 0.2s;
 }
-.chapter-nav a:last-child { border-right: none; }
-.chapter-nav a:hover { color: var(--amber); background: var(--surface); }
+
+.chapter-nav a:first-child {
+  border-left: 1px solid var(--border);
+}
+
+.chapter-nav a:last-child {
+  border-right: none;
+}
+
+.chapter-nav a:hover {
+  color: var(--amber); background: var(--surface);
+}
+
 .chapter-nav a.active {
   color: var(--amber);
   background: rgba(240, 165, 0, 0.08);
@@ -196,9 +365,18 @@ body {
   margin: 0 auto;
   opacity: 0;
   transform: translateY(28px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition: opacity 0.6s ease;
+  scroll-margin-top: 48px;
 }
-.chapter.revealed { opacity: 1; transform: none; }
+.chapter.revealed { opacity: 1; }
+
+.chapter > * {
+  transform: translateY(28px);
+  transition: transform 0.6s ease;
+}
+.chapter.revealed > * {
+  transform: translateY(0);
+}
 
 .chapter-alt {
   max-width: 100%;
@@ -207,12 +385,13 @@ body {
   padding-right: max(2rem, calc((100vw - var(--max-w)) / 2));
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
+  scroll-margin-top: 48px;
 }
-.chapter-alt > * { max-width: var(--max-w); margin-left: auto; margin-right: auto; }
 
-.chapter-alt .chapter-intro,
-.chapter-alt .chapter-body {
-  margin-left: 0;
+.chapter-alt > * { 
+  max-width: var(--max-w); 
+  margin-left: 0; 
+  margin-right: auto; 
 }
 
 .chapter-label {
@@ -353,11 +532,6 @@ body {
 }
 
 #viz-lollipop {
-  width: 100%;
-  background: transparent;
-}
-
-#viz-waffle {
   width: 100%;
   background: transparent;
 }

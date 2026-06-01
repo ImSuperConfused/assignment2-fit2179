@@ -20,7 +20,7 @@
     }
   },
   "data": {
-    "url": "../data/fatalities_long.json"
+    "url": "data/fatalities_long.json"
   },
   "transform": [
     {
@@ -30,6 +30,26 @@
   ],
   "layer": [
     {
+      "params": [
+        {
+          "name": "hover",
+          "select": {
+            "type": "point",
+            "on": "mouseover",
+            "clear": "mouseout"
+          }
+        },
+        {
+          "name": "stateHighlight",
+          "select": { "type": "point", "fields": ["state"] },
+          "bind": {
+            "input": "select",
+            "options": [null, "NSW", "VIC", "QLD", "SA", "WA", "TAS", "NT", "ACT"],
+            "labels": ["Show All", "New South Wales", "Victoria", "Queensland", "South Australia", "Western Australia", "Tasmania", "Northern Territory", "Australian Capital Territory"],
+            "name": "Highlight State: "
+          }
+        }
+      ],
       "mark": {
         "type": "rect",
         "cornerRadius": 2
@@ -71,10 +91,32 @@
             "titleColor": "#aab",
             "labelFont": "Courier Prime, monospace",
             "titleFont": "Libre Franklin, sans-serif",
+            "titleAnchor":"middle",
+            "titleAlign": "center",
             "titleFontSize": 11,
             "labelFontSize": 10,
             "gradientLength": 130
           }
+        },
+        "opacity": {
+          "condition": { 
+            "test": {
+              "and": [
+                {"param": "hover"},
+                {"param": "stateHighlight"}
+              ]
+            }, 
+            "value": 1 
+          },
+          "value": 0.15
+        },
+        "stroke": {
+          "condition": { "param": "hover", "empty": false, "value": "#e8edf2" },
+          "value": "transparent"
+        },
+        "strokeWidth": {
+          "condition": { "param": "hover", "empty": false, "value": 1.5 },
+          "value": 0
         },
         "tooltip": [
           {
@@ -119,6 +161,18 @@
         },
         "color": {
           "value": "#64748b"
+        },
+        "opacity": {
+          "condition": { 
+            "test": {
+              "and": [
+                {"param": "hover"},
+                {"param": "stateHighlight"}
+              ]
+            }, 
+            "value": 1 
+          },
+          "value": 0.15
         },
         "tooltip": [
           {

@@ -3,7 +3,7 @@
   "width": "container",
   "height": 550,
   "config": {
-    "background": "transparent",
+    "background": "#0d1117",
     "view": {"stroke": null},
     "axis": {
       "domainColor": "#2d4057",
@@ -16,14 +16,21 @@
     }
   },
   "data": {
-    "url": "../data/network_speeds.json"
+    "url": "data/network_speeds.json"
   },
   "encoding": {
     "y": {
       "field": "Line",
       "type": "nominal",
-      "sort": {"field": "Speed", "op": "max", "order": "descending"},
-      "axis": {"title": null, "labelFontSize": 12}
+      "sort": {
+        "field": "Speed", 
+        "op": "max", "order": 
+        "descending"
+      },
+      "axis": {
+        "title": "Route", 
+        "labelFontSize": 11
+      }
     }
   },
   "layer": [
@@ -36,7 +43,7 @@
       },
       "encoding": {
         "x": {
-          "field": "Station_Spacing",
+          "field": "Speed",
           "type": "quantitative"
         },
         "x2": {"value": 0},
@@ -48,12 +55,18 @@
             "range": ["#4a9fd4", "#e05252"]
           },
           "legend": {
-            "title": "Network Type",
             "orient": "bottom-right",
-            "titleColor": "#ccd",
-            "labelColor": "#aab",
+            "labelColor": "#ccd",
+            "titleColor": "#aab",
+            "title": "Network",
+            "titleAnchor":"middle",
+            "titleAlign": "center",
             "titleFont": "Courier Prime, monospace",
-            "labelFont": "Courier Prime, monospace"
+            "labelFont": "Courier Prime, monospace",
+            "symbolStrokeWidth": 3,
+            "padding": 10,
+            "fillColor": "#0d1117",
+            "strokeColor": "#2d4057"
           }
         }
       }
@@ -61,29 +74,7 @@
     {
       "mark": {
         "type": "point",
-        "size": 80,
-        "shape": "circle",
-        "strokeWidth": 2,
-        "filled": false,
-        "opacity": 0.45
-      },
-      "encoding": {
-        "x": {
-          "field": "Station_Spacing",
-          "type": "quantitative"
-        },
-        "color": {"value": "#ffffff"},
-        "tooltip": [
-          {"field": "Line", "title": "Route"},
-          {"field": "Station_Spacing", "title": "Avg Gap (km)", "format": ".1f"}
-        ]
-      }
-    },
-    {
-      "mark": {
-        "type": "point",
         "filled": true,
-        "size": 160,
         "opacity": 1,
         "stroke": "#0d1117",
         "strokeWidth": 1.5
@@ -92,19 +83,26 @@
         "x": {
           "field": "Speed",
           "type": "quantitative",
-          "title": "Journey Speed (km/h) & Station Spacing (km)",
+          "title": "Journey Speed (Kilometers Per Hour)",
           "scale": {"domain": [0, 100]}
         },
         "color": {
           "field": "Type",
           "type": "nominal"
         },
+        "size": {
+          "field": "Station_Spacing",
+          "type": "quantitative",
+          "title": "Average Station Spacing (Kilometers)",
+          "scale": {"range": [50, 450]},
+          "legend": null
+        },
         "tooltip": [
-          {"field": "Line", "title": "Route"},
-          {"field": "City", "title": "City/Region"},
-          {"field": "Type", "title": "Network"},
-          {"field": "Speed", "title": "Avg Speed (km/h)", "format": ".1f"},
-          {"field": "Station_Spacing", "title": "Avg Gap (km)", "format": ".1f"}
+          {"field": "Line", "title": "Route:"},
+          {"field": "City", "title": "City/Region:"},
+          {"field": "Type", "title": "Network:"},
+          {"field": "Speed", "title": "Average Speed (Kilometers Per Hour):", "format": ".2f"},
+          {"field": "Station_Spacing", "title": "Average Gap (Kilometers):", "format": ".2f"}
         ]
       }
     }

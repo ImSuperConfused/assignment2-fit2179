@@ -4,29 +4,38 @@
   "height": 520,
   "config": {
     "background": "#0d1117",
-    "view": {
-      "stroke": null
-    }
+    "view": { "stroke": null }
   },
   "projection": {
     "type": "mercator",
     "center": [134, -28],
     "scale": 720
   },
+  "params": [
+    {
+      "name": "minLength",
+      "value": 0,
+      "bind": {
+        "input": "text",
+        "name": "Minimum Line Length (Kilometers): "
+      }
+    },
+    {
+      "name": "maxLength",
+      "value": 355,
+      "bind": {
+        "input": "text",
+        "name": "Maximum Line Length (Kilometers): "
+      }
+    }
+  ],
   "layer": [
     {
       "data": {
-        "url": "../data/world-110m.json",
-        "format": {
-          "type": "topojson",
-          "feature": "countries"
-        }
+        "url": "data/world-110m.json",
+        "format": { "type": "topojson", "feature": "countries" }
       },
-      "transform": [
-        {
-          "filter": "datum.id === 36"
-        }
-      ],
+      "transform": [{ "filter": "datum.id === 36" }],
       "mark": {
         "type": "geoshape",
         "fill": "#1a2332",
@@ -36,34 +45,22 @@
     },
     {
       "data": {
-        "url": "../data/railway_lines.geojson",
-        "format": {
-          "type": "json",
-          "property": "features"
-        }
+        "url": "data/railways_cleaned.geojson",
+        "format": { "type": "json", "property": "features" }
       },
-      "transform": [
-        {
-          "calculate": "datum.properties.track_gauge",
-          "as": "track_gauge"
-        },
-        {
-          "calculate": "datum.properties.owner",
-          "as": "owner"
-        },
-        {
-          "filter": {"param": "gaugeFilter"}
-        }
-      ],
       "params": [
         {
           "name": "gaugeFilter",
-          "select": {
-            "type": "point",
-            "fields": ["track_gauge"]
-          },
+          "select": { "type": "point", "fields": ["track_gauge"] },
           "bind": "legend"
         }
+      ],
+      "transform": [
+        { "calculate": "datum.properties.track_gauge", "as": "track_gauge" },
+        { "calculate": "datum.properties.owner", "as": "owner" },
+        { "calculate": "datum.properties.length_km", "as": "length_km" },
+        { "filter": "datum.length_km == null || (datum.length_km >= +minLength && datum.length_km <= +maxLength)" },
+        { "filter": { "param": "gaugeFilter" } }
       ],
       "mark": {
         "type": "geoshape",
@@ -77,25 +74,19 @@
           "type": "nominal",
           "title": "Track Gauge",
           "scale": {
-            "domain": [
-              "Narrow: 1067mm",
-              "Standard: 1435mm",
-              "Broad: 1600mm"
-            ],
-            "range": [
-              "#e05252",
-              "#f0a500",
-              "#4a9fd4"
-            ]
+            "domain": ["Narrow: 1067mm", "Standard: 1435mm", "Broad: 1600mm"],
+            "range": ["#e05252", "#f0a500", "#4a9fd4"]
           },
           "legend": {
             "orient": "bottom-left",
-            "labelColor": "#ccd",
+            "labelColor": "#ccd", 
             "titleColor": "#aab",
             "labelFontSize": 12,
             "title": "Track Gauge",
             "titleFont": "Courier Prime, monospace",
             "titlePadding": 5,
+            "titleAnchor":"middle",
+            "titleAlign": "center",
             "labelFont": "Courier Prime, monospace",
             "symbolStrokeWidth": 3,
             "padding": 8,
@@ -104,22 +95,18 @@
           }
         },
         "strokeWidth": {
-          "condition": [
-            {
-              "test": "datum.properties.tracks === 'Double' || datum.properties.tracks === 'Multiple'",
-              "value": 3
-            }
-          ],
+          "condition": [{
+            "test": "datum.properties.tracks === 'Double' || datum.properties.tracks === 'Multiple'",
+            "value": 3
+          }],
           "value": 1.8
         },
-        "opacity": {
-          "value": 0.92
-        },
+        "opacity": { "value": 0.92 },
         "tooltip": [
-          {"field": "properties.name", "title": "Line:"},
-          {"field": "track_gauge", "title": "Gauge:"},
-          {"field": "owner", "title": "Owner:"},
-          {"field": "properties.length_km", "title": "Length (Kilometers):", "format": ".2f"}
+          { "field": "properties.name",   "title": "Line:" },
+          { "field": "track_gauge",        "title": "Gauge:" },
+          { "field": "owner",              "title": "Owner:" },
+          { "field": "length_km",          "title": "Length (Kilometers):", "format": ".2f" }
         ]
       }
     }

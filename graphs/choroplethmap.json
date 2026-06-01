@@ -4,14 +4,12 @@
   "height": 520,
   "config": {
     "background": "#0d1117",
-    "view": {
-      "stroke": null
-    }
+    "view": { "stroke": null }
   },
   "projection": {
     "type": "mercator",
     "center": [134, -28],
-    "scale": 720
+    "scale": 700
   },
   "params": [
     {
@@ -22,29 +20,27 @@
         "min": 1998,
         "max": 2023,
         "step": 1,
-        "name": "Financial Year: "
+        "name": "Year: "
       }
     }
   ],
   "data": {
-    "url": "../data/rail_expenditure_per_capita_all_years.json"
+    "url": "data/rail_expenditure_per_capita_all_years.json"
   },
   "transform": [
+    { "filter": "datum.year == SelectYear" },
     {
-      "filter": "datum.year == SelectYear"
-    },
-    {
-      "calculate": "datum.state === 'NSW' ? 'New South Wales' : datum.state === 'VIC' ? 'Victoria' : datum.state === 'QLD' ? 'Queensland' : datum.state === 'SA' ? 'South Australia' : datum.state === 'WA' ? 'Western Australia' : datum.state === 'TAS' ? 'Tasmania' : datum.state === 'NT' ? 'Northern Territory' : datum.state === 'ACT' ? 'Australian Capital Territory' : 'Other'",
+      "calculate": "{'NSW':'New South Wales','VIC':'Victoria','QLD':'Queensland','SA':'South Australia','WA':'Western Australia','TAS':'Tasmania','NT':'Northern Territory','ACT':'Australian Capital Territory'}[datum.state]",
       "as": "state_full"
     },
     {
       "lookup": "state_full",
       "from": {
         "data": {
-          "url": "state_boundaries.json",
-          "format": {
-            "type": "json",
-            "property": "features"
+          "url": "data/state_boundaries.topojson",
+          "format": { 
+            "type": "topojson", 
+            "feature": "state_boundaries" 
           }
         },
         "key": "properties.state_name_2021"
@@ -54,42 +50,44 @@
   ],
   "mark": {
     "type": "geoshape",
-    "stroke": "#2d4057",
-    "strokeWidth": 0.8
+    "stroke": "#0d1117",
+    "strokeWidth": 1
   },
   "encoding": {
     "shape": {
       "field": "geo",
       "type": "geojson"
     },
-    "detail": {
-      "field": "state",
-      "type": "nominal"
-    },
     "color": {
       "field": "spend_per_capita",
       "type": "quantitative",
       "scale": {
         "scheme": "oranges",
-        "domain": [0, 2000]
+        "domain": [0, 3000]
       },
       "legend": {
+        "title": "Spend Per Capita AUD$",
+        "titleAnchor":"middle",
+        "titleAlign": "center",
         "orient": "bottom-right",
-        "labelColor": "#aab",
-        "titleColor": "#aab",
-        "labelFont": "Courier Prime, monospace",
-        "titleFont": "Libre Franklin, sans-serif",
-        "labelFontSize": 10,
-        "titleFontSize": 11,
-        "offset": 10
+        "labelColor": "#8b949e",
+        "titleColor": "#c9d1d9",
+        "labelFont": "monospace",
+        "offset": 10,
+        "values": [0, 1500, 3000],
+        "gradientLength": 200,
+        "labelExpr": "datum.value === 0 ? '0' : datum.value === 1500 ? '1.5k' : '3k'",
+        "padding": 15,
+        "fillColor": "#0d1117",
+        "strokeColor": "#1e293b"
       }
     },
     "tooltip": [
-      {"field": "state_full", "type": "nominal", "title": "State"},
-      {"field": "year", "type": "quantitative", "title": "Financial Year"},
-      {"field": "spend_per_capita", "type": "quantitative", "title": "Spend per Person (AU$)", "format": "$,.2f"},
-      {"field": "expenditure", "type": "quantitative", "title": "Total Spend (AU$M)", "format": "$,.1f"},
-      {"field": "population", "type": "quantitative", "title": "Total Population", "format": ","}
+      { "field": "state", "type": "nominal", "title": "State:" },
+      { "field": "year", "type": "quantitative", "title": "Year:" },
+      { "field": "spend_per_capita", "type": "quantitative", "title": "Spend per Person (AUD$):", "format": "$,.2f" },
+      { "field": "expenditure", "type": "quantitative", "title": "Total Spend (Millions AUD$):", "format": "$,.2f" },
+      { "field": "population", "type": "quantitative", "title": "Total Population", "format": "," }
     ]
   }
 }

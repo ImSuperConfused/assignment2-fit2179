@@ -29,7 +29,7 @@
   "layer": [
     {
       "data": {
-        "url": "../data/world-110m.json",
+        "url": "data/world-110m.json",
         "format": {
           "type": "topojson",
           "feature": "countries"
@@ -49,7 +49,7 @@
     },
     {
       "data": {
-        "url": "../data/australian_city_transit_all_years.json",
+        "url": "data/australian_city_transit_all_years.json",
         "format": {
           "type": "json"
         }
@@ -59,7 +59,7 @@
           "filter": "datum.Year === selectYear"
         },
         {
-          "calculate": "datum.lat + (datum.passengers_m / 22)",
+          "calculate": "datum.lat + sqrt(datum.passengers_m)",
           "as": "peak_lat"
         }
       ],
@@ -94,9 +94,11 @@
                 "labelColor": "#ccd",
                 "titleColor": "#aab",
                 "labelFontSize": 12,
-                "title": "State",
+                "title": "City",
                 "titleFont": "Courier Prime, monospace",
                 "titlePadding": 5,
+                "titleAnchor":"middle",
+                "titleAlign": "center",
                 "labelFont": "Courier Prime, monospace",
                 "symbolStrokeWidth": 0,
                 "padding": 8,
@@ -140,10 +142,12 @@
             "size": {
               "field": "pop_m",
               "type": "quantitative",
-              "title": "State Population",
+              "title": "City Population",
               "scale": {
+                "type": "pow",
+                "exponent": 2,
                 "domain": [0, 8],
-                "range": [50, 1800]
+                "range": [50, 4000]
               },
               "legend": {
                 "values": [0, 2, 4, 6, 8],
@@ -153,6 +157,8 @@
                 "labelColor": "#ccd",
                 "titleColor": "#aab",
                 "titlePadding": 5,
+                "titleAnchor":"middle",
+                "titleAlign": "center",
                 "symbolType": "circle",
                 "symbolFillColor": "#aab",
                 "symbolStrokeColor": "#0d1117",
@@ -170,10 +176,10 @@
               "value": 0.15
             },
             "tooltip": [
-              { "field": "city", "title": "State:" },
+              { "field": "city", "title": "City:" },
               { "field": "Year", "title": "Year:" },
               { "field": "passengers_m", "title": "Boardings (Millions):", "format": ".2f" },
-              { "field": "pop_m", "title": "State Population (Millions):", "format": ".2f" }
+              { "field": "pop_m", "title": "City Population (Millions):", "format": ".2f" }
             ]
           }
         }

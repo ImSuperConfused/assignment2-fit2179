@@ -17,8 +17,28 @@
     }
   },
   "data": {
-    "url": "../data/heatmap_passengers_long.json"
+    "url": "data/heatmap_passengers_long.json"
   },
+  "params": [
+    {
+      "name": "hover",
+      "select": {
+        "type": "point",
+        "on": "mouseover",
+        "clear": "mouseout"
+      }
+    },
+    {
+      "name": "cityHighlight",
+      "select": { "type": "point", "fields": ["city"] },
+      "bind": {
+        "input": "select",
+        "options": [null, "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
+        "labels": ["Show All", "Sydney", "Melbourne", "Brisbane", "Perth", "Adelaide"],
+        "name": "Highlight City: "
+      }
+    }
+  ],
   "mark": {
     "type": "rect",
     "cornerRadius": 2
@@ -43,7 +63,7 @@
     "color": {
       "field": "passengers",
       "type": "quantitative",
-      "title": "Boardings (Millions)",
+      "title": "Boardings",
       "scale": {
         "type": "linear",
         "domain": [0, 95, 190, 285, 380],
@@ -56,15 +76,37 @@
         "titleColor": "#aab",
         "labelFont": "Courier Prime, monospace",
         "titleFont": "Libre Franklin, sans-serif",
+        "titleAnchor":"middle",
+        "titleAlign": "center",
         "titleFontSize": 11,
         "labelFontSize": 10,
         "gradientLength": 130
       }
     },
+    "opacity": {
+      "condition": { 
+        "test": {
+          "and": [
+            {"param": "hover"},
+            {"param": "cityHighlight"}
+          ]
+        }, 
+        "value": 1 
+      },
+      "value": 0.15
+    },
+    "stroke": {
+      "condition": { "param": "hover", "empty": false, "value": "#e8edf2" },
+      "value": "transparent"
+    },
+    "strokeWidth": {
+      "condition": { "param": "hover", "empty": false, "value": 1.5 },
+      "value": 0
+    },
     "tooltip": [
-      {"field": "city", "title": "State:"},
-      {"field": "year", "title": "Financial Year:"},
-      {"field": "passengers", "title": "Boardings:", "format": ".2f"}
+      {"field": "city", "title": "City:"},
+      {"field": "year", "title": "Year:"},
+      {"field": "passengers", "title": "Boardings (Millions):", "format": ".2f"}
     ]
   }
 }

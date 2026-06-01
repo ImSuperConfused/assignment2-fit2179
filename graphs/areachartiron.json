@@ -3,14 +3,14 @@
   "width": "container",
   "height": 400,
   "config": {
-    "background": "transparent",
+    "background": "#0d1117",
     "view": {
       "stroke": null
     },
     "font": "Libre Franklin, sans-serif"
   },
   "data": {
-    "url": "../data/iron_data.json"
+    "url": "data/iron_data.json"
   },
   "transform": [
     {
@@ -20,13 +20,12 @@
   ],
   "params": [
     {
-      "name": "portHover",
+      "name": "portSelect",
       "select": {
         "type": "point",
-        "fields": ["Area"],
-        "on": "pointerover",
-        "clear": "pointerout"
-      }
+        "fields": ["Area"]
+      },
+      "bind": "legend"
     }
   ],
   "mark": {
@@ -80,17 +79,21 @@
       },
       "legend": {
         "orient": "top",
-        "labelColor": "#ccd",
-        "titleColor": "#aab",
-        "fillColor": "transparent",
-        "strokeColor": "transparent",
-        "labelFont": "Libre Franklin, sans-serif",
-        "labelFontSize": 12,
-        "title": null,
+        "direction": "horizontal",
+        "offset": 10,
+        "title": "Export Port",
         "symbolType": "square",
         "symbolSize": 150,
-        "direction": "horizontal",
-        "offset": 10
+        "labelColor": "#ccd",
+        "titleColor": "#aab",
+        "labelFontSize": 12,
+        "titleFont": "Courier Prime, monospace",
+        "titlePadding": 5,
+        "labelFont": "Courier Prime, monospace",
+        "symbolStrokeWidth": 3,
+        "padding": 8,
+        "fillColor": "#0d1117",
+        "strokeColor": "#2d4057"
       }
     },
     "order": {
@@ -100,16 +103,16 @@
     },
     "opacity": {
       "condition": {
-        "param": "portHover",
+        "param": "portSelect",
         "empty": true,
         "value": 0.95
       },
       "value": 0.15
     },
     "tooltip": [
-      { "field": "Year", "title": "Year:"},
-      { "field": "Area", "title": "Export Port:"},
-      { "field": "Value", "title": "Volume (Million Tonnes):", "format": ".2f"}
+      { "field": "Year", "title": "Year:" },
+      { "field": "Area", "title": "Export Port:" },
+      { "field": "Value", "title": "Volume (Million Tonnes):", "format": ".2f" }
     ]
   }
 }
